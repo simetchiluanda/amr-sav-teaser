@@ -1,0 +1,853 @@
+<title>AMR SAV — Démo back-office (maquette)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --accent:#EF7814; --accent-ink:#C2410C; --accent-soft:#FDF0E3;
+  --structure:#005EAB; --link:#165EAA; --cyan:#00AFEC;
+  --bg:#F7F6F3; --panel:#FFFFFF; --hover:#F4F1EB; --tint:#F8F6F2;
+  --text:#1E2833; --muted:#6E7A87; --border:#E8E4DD; --border-soft:#F0EDE7;
+  --ok:#178457; --ok-soft:#E4F4EC; --warn:#B4540A; --danger:#C0362C;
+  --shadow:0 1px 2px rgba(24,22,16,.04),0 10px 28px -14px rgba(24,22,16,.14);
+  --r:16px;
+}
+@media (prefers-color-scheme: dark){:root{
+  --accent:#F58A33; --accent-ink:#F6A05C; --accent-soft:#32210F;
+  --structure:#4D9FE8; --link:#6FB3F0; --cyan:#38C2F5;
+  --bg:#11161D; --panel:#191F28; --hover:#202834; --tint:#1D242E;
+  --text:#EBEFF4; --muted:#93A0AD; --border:#2A323D; --border-soft:#232B35;
+  --ok:#4CC08A; --ok-soft:#132A1F; --warn:#F0A05C; --danger:#F29A93;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.5);
+}}
+:root[data-theme="dark"]{
+  --accent:#F58A33; --accent-ink:#F6A05C; --accent-soft:#32210F;
+  --structure:#4D9FE8; --link:#6FB3F0; --cyan:#38C2F5;
+  --bg:#11161D; --panel:#191F28; --hover:#202834; --tint:#1D242E;
+  --text:#EBEFF4; --muted:#93A0AD; --border:#2A323D; --border-soft:#232B35;
+  --ok:#4CC08A; --ok-soft:#132A1F; --warn:#F0A05C; --danger:#F29A93;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.5);
+}
+:root[data-theme="light"]{
+  --accent:#EF7814; --accent-ink:#C2410C; --accent-soft:#FDF0E3;
+  --structure:#005EAB; --link:#165EAA; --cyan:#00AFEC;
+  --bg:#F7F6F3; --panel:#FFFFFF; --hover:#F4F1EB; --tint:#F8F6F2;
+  --text:#1E2833; --muted:#6E7A87; --border:#E8E4DD; --border-soft:#F0EDE7;
+  --ok:#178457; --ok-soft:#E4F4EC; --warn:#B4540A; --danger:#C0362C;
+  --shadow:0 1px 2px rgba(24,22,16,.04),0 10px 28px -14px rgba(24,22,16,.14);
+}
+*{box-sizing:border-box} html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:14.5px/1.55 "Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Space Grotesk","Avenir Next","Helvetica Neue",Arial,sans-serif;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer} input,select,textarea{font:inherit;color:var(--text)}
+a{color:var(--link)}
+.layout{display:flex;min-height:100vh}
+/* ---------- sidebar (blanche, item actif pilule orange — style cockpit Darkin) ---------- */
+.side{width:232px;flex:0 0 232px;background:var(--panel);border-right:1px solid var(--border-soft);display:flex;flex-direction:column;padding:1.1rem .9rem;position:sticky;top:0;height:100vh}
+.brand{padding:.1rem .4rem 1.1rem;border-bottom:1px solid var(--border-soft);margin-bottom:.9rem}
+.brand img{height:52px;display:block}
+.brand .tag{display:inline-block;margin-top:.45rem;font-size:.68rem;font-weight:600;letter-spacing:.14em;color:var(--muted)}
+.nav{display:flex;flex-direction:column;gap:.15rem}
+.nav button{display:flex;align-items:center;gap:.65rem;background:none;border:0;color:var(--muted);padding:.58rem .7rem;border-radius:11px;text-align:left;width:100%;font-weight:500}
+.nav button:hover{background:var(--hover);color:var(--text)}
+.nav button.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+.side .foot{margin-top:auto;font-size:.72rem;color:var(--muted);padding:.8rem .5rem 0;border-top:1px solid var(--border-soft)}
+/* ---------- topbar ---------- */
+.main{flex:1;min-width:0;padding:1.25rem 1.9rem 3rem}
+.appbar{display:flex;align-items:center;gap:.9rem;margin-bottom:1.4rem}
+.appbar .search{flex:1;max-width:430px;position:relative}
+.appbar .search input{width:100%;border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:.55rem .9rem .55rem 2.2rem;box-shadow:none}
+.appbar .search::before{content:"🔎";position:absolute;left:.7rem;top:50%;transform:translateY(-50%);font-size:.8rem;opacity:.6}
+.demo-tag{font-size:.72rem;font-weight:600;color:var(--warn);background:var(--accent-soft);border-radius:99px;padding:.3rem .7rem;white-space:nowrap}
+.iconbtn{border:1px solid var(--border);background:var(--panel);border-radius:11px;width:2.35rem;height:2.35rem;display:flex;align-items:center;justify-content:center}
+.userchip{display:flex;align-items:center;gap:.6rem;border:1px solid var(--border);background:var(--panel);border-radius:12px;padding:.32rem .75rem .32rem .38rem}
+.userchip .ava{width:1.9rem;height:1.9rem;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem}
+.userchip b{display:block;font-size:.8rem;line-height:1.15}
+.userchip span{font-size:.68rem;color:var(--muted)}
+/* ---------- en-têtes de page ---------- */
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:1.45rem;font-weight:650}
+.topbar .sub{color:var(--muted);font-size:.85rem;margin-top:.15rem}
+.btn{border:1px solid var(--border);background:var(--panel);border-radius:11px;padding:.52rem .95rem;color:var(--text);font-weight:500}
+.btn:hover{background:var(--hover)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;box-shadow:0 6px 16px -8px rgba(239,120,20,.55)}
+.btn.primary:hover{filter:brightness(1.06);background:var(--accent)}
+.btn.small{padding:.32rem .65rem;font-size:.8rem;border-radius:9px}
+/* ---------- cartes & stats ---------- */
+.grid{display:grid;gap:1rem}
+.stats{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.card{background:var(--panel);border:1px solid var(--border-soft);border-radius:var(--r);padding:1.15rem;box-shadow:var(--shadow)}
+.stat{display:flex;flex-direction:column;gap:.35rem}
+.stat .ic{width:2.3rem;height:2.3rem;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:.2rem}
+.stat b{font-size:1.7rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{color:var(--muted);font-size:.8rem}
+.stat .trend{font-size:.74rem;color:var(--ok);font-weight:600}
+.stat.hero{background:var(--accent);border-color:var(--accent);color:#fff}
+.stat.hero .ic{background:rgba(255,255,255,.22)}
+.stat.hero span,.stat.hero .trend{color:rgba(255,255,255,.85)}
+.two-col{grid-template-columns:2fr 1fr}
+@media(max-width:1000px){.two-col{grid-template-columns:1fr}}
+.card h3{margin:.05rem 0 .8rem;font-size:.98rem;font-weight:650}
+/* ---------- filtres & tableaux ---------- */
+.filters{display:flex;gap:.55rem;flex-wrap:wrap;margin-bottom:.9rem}
+.filters input,.filters select{border:1px solid var(--border);background:var(--panel);border-radius:11px;padding:.5rem .8rem}
+.filters input{min-width:230px}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+.tablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--border-soft);border-radius:var(--r);box-shadow:var(--shadow)}
+th{text-align:left;padding:.65rem .85rem;white-space:nowrap;color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border-soft);font-weight:600}
+td{padding:.68rem .85rem;border-top:1px solid var(--border-soft);vertical-align:middle}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--hover)}
+.num{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:600;white-space:nowrap;font-size:.82rem}
+.chip{display:inline-block;padding:.22em .7em;border-radius:99px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.prio{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.prio.haute{color:var(--warn)} .prio.urgente{color:var(--danger)} .prio.normale{color:var(--muted)} .prio.basse{color:var(--muted);opacity:.65}
+/* ---------- détail ---------- */
+.backlink{background:none;border:0;color:var(--muted);padding:0;margin-bottom:.7rem;font-size:.85rem}
+.backlink:hover{color:var(--link)}
+.dethead{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:flex-start}
+.dethead .who{color:var(--muted);font-size:.84rem;margin-top:.3rem}
+.tabs{display:flex;gap:.2rem;border-bottom:1px solid var(--border);margin:1.05rem 0 1rem;flex-wrap:wrap}
+.tabs button{background:none;border:0;padding:.5rem .85rem;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500}
+.tabs button.active{color:var(--accent-ink);font-weight:600;border-bottom-color:var(--accent)}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{position:relative;padding:0 0 1.05rem 1.5rem;border-left:2px solid var(--border);margin-left:.4rem}
+.timeline li::before{content:"";position:absolute;left:-6px;top:.28em;width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.timeline li.pub::before{background:var(--accent)}
+.timeline .t{color:var(--muted);font-size:.74rem}
+.tagpub{font-size:.66rem;color:var(--accent-ink);background:var(--accent-soft);border-radius:99px;padding:.1em .55em;font-weight:600}
+.devicebox{border:1px solid var(--border-soft);border-radius:13px;padding:.85rem 1rem;margin-bottom:.7rem;background:var(--tint)}
+.devicebox b{display:block}
+.kv{color:var(--muted);font-size:.8rem}
+.msg{max-width:75%;padding:.55rem .85rem;border-radius:14px;margin:.4rem 0;font-size:.86rem;box-shadow:var(--shadow)}
+.msg.client{background:var(--panel);border:1px solid var(--border-soft);border-bottom-left-radius:4px}
+.msg.staff{background:var(--accent-soft);margin-left:auto;border-bottom-right-radius:4px}
+.msg .t{display:block;font-size:.68rem;color:var(--muted);margin-top:.2rem}
+/* ---------- formulaire fiche ---------- */
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+@media(max-width:860px){.formgrid{grid-template-columns:1fr}}
+.field label{display:block;font-size:.75rem;font-weight:600;color:var(--muted);margin-bottom:.3rem}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--border);background:var(--panel);border-radius:11px;padding:.52rem .75rem}
+.field textarea{min-height:72px;resize:vertical}
+fieldset{border:1px solid var(--border-soft);border-radius:var(--r);margin:0 0 1rem;padding:1rem 1.15rem 1.1rem;background:var(--panel);box-shadow:var(--shadow)}
+legend{font-weight:650;font-size:.8rem;padding:0 .5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-family:"Space Grotesk","Avenir Next",sans-serif}
+.techs{display:flex;gap:.9rem;flex-wrap:wrap}
+.techs label,.svc label{font-weight:normal;display:flex;align-items:center;gap:.45rem;font-size:.88rem}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent);width:1.05em;height:1.05em}
+.svc{display:flex;flex-direction:column;gap:.45rem}
+.svc .price{color:var(--muted);font-size:.78rem;margin-left:auto}
+.svcrow{display:flex;align-items:center;gap:.5rem;border:1px solid var(--border-soft);border-radius:11px;padding:.5rem .8rem;background:var(--tint)}
+.sig{border:1.5px dashed var(--border);border-radius:13px;background:var(--panel);touch-action:none;width:100%;height:160px;display:block}
+.sighint{color:var(--muted);font-size:.78rem;margin:.35rem 0 0}
+/* ---------- rdv ---------- */
+.rdv{display:flex;gap:.85rem;align-items:center;border:1px solid var(--border-soft);border-radius:13px;padding:.75rem .95rem;margin-bottom:.6rem;background:var(--panel);box-shadow:var(--shadow)}
+.rdv .h{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:700;color:var(--text);white-space:nowrap;background:var(--tint);border-radius:9px;padding:.25rem .5rem;font-size:.82rem}
+.rdv .type{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-ink)}
+/* ---------- vue client ---------- */
+.phoneframe{max-width:420px;margin:0 auto;border:1px solid var(--border-soft);border-radius:26px;overflow:hidden;box-shadow:var(--shadow);background:var(--panel)}
+.pubhead{background:var(--structure);color:#fff;padding:1.15rem 1.3rem}
+.pubhead .n{font-family:ui-monospace,monospace;font-size:1.1rem;font-weight:700}
+.pubbody{padding:1.05rem 1.3rem 1.3rem}
+.statebig{display:inline-block;padding:.3em .95em;border-radius:99px;font-weight:650;margin:.45rem 0;font-size:.9rem}
+/* ---------- toast + modal ---------- */
+#toasts{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:50}
+.toast{background:var(--text);color:var(--bg);padding:.6rem 1rem;border-radius:12px;font-size:.85rem;box-shadow:var(--shadow);animation:pop .18s ease-out}
+@keyframes pop{from{transform:translateY(8px);opacity:0}}
+@media (prefers-reduced-motion: reduce){.toast{animation:none}}
+.overlay{position:fixed;inset:0;background:rgba(15,20,26,.45);display:flex;align-items:center;justify-content:center;z-index:40;padding:1rem}
+.wa{background:#E5DDD5;border-radius:18px;max-width:360px;width:100%;overflow:hidden;box-shadow:var(--shadow)}
+:root[data-theme="dark"] .wa{background:#1F2C33}
+.wa .wahead{background:#075E54;color:#fff;padding:.75rem 1rem;display:flex;align-items:center;gap:.6rem;font-weight:600}
+.wa .wahead .ava{width:2em;height:2em;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center}
+.wa .wabody{padding:1rem}
+.bubble{background:#fff;color:#111;border-radius:0 12px 12px 12px;padding:.65rem .85rem;font-size:.85rem;white-space:pre-line;box-shadow:0 1px 1px rgba(0,0,0,.12);max-width:95%}
+:root[data-theme="dark"] .bubble{background:#2A3942;color:#E6EDF4}
+.bubble .wt{display:block;text-align:right;font-size:.68rem;color:#667;margin-top:.2rem}
+.wa .waclose{display:block;margin:.8rem auto 1rem;background:#075E54;color:#fff;border:0;border-radius:10px;padding:.45rem 1.2rem}
+/* mobile */
+@media(max-width:820px){
+  .layout{flex-direction:column}
+  .side{width:auto;height:auto;position:static;flex-direction:row;align-items:center;padding:.55rem .7rem;overflow-x:auto;border-right:0;border-bottom:1px solid var(--border-soft)}
+  .brand{padding:0 .8rem 0 .2rem;border:0;margin:0}
+  .brand img{height:34px}
+  .brand .tag{display:none}
+  .nav{flex-direction:row}
+  .nav button{white-space:nowrap;padding:.45rem .6rem}
+  .side .foot{display:none}
+  .main{padding:1rem}
+  .appbar .search{max-width:none}
+  .userchip b,.userchip span{display:none}
+}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ====== v4 : dégradés, animations, profil sidebar ====== */
+body{background:var(--bg) radial-gradient(1100px 420px at 75% -12%, rgba(239,120,20,.05), transparent 70%) no-repeat}
+.card,.btn,.iconbtn,.nav button,.rdv,.svcrow,.tabs button{transition:box-shadow .22s ease,transform .22s ease,background .16s ease,border-color .16s ease,color .16s ease}
+.grid .card:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(24,22,16,.05),0 18px 38px -16px rgba(24,22,16,.2)}
+.stat.hero{background:linear-gradient(135deg,#F9942F 0%,#EF7814 55%,#E25F00 100%);position:relative;overflow:hidden}
+.stat.hero::after{content:"";position:absolute;right:-46px;top:-46px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.14);filter:blur(2px)}
+.stat.hero::before{content:"";position:absolute;right:8px;bottom:-58px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08)}
+.btn.primary{background:linear-gradient(135deg,#F9942F,#EF7814 70%);border-color:transparent}
+.btn.primary:hover{filter:none;background:linear-gradient(135deg,#FA9E42,#F07F1F 70%);transform:translateY(-1px);box-shadow:0 10px 22px -8px rgba(239,120,20,.55)}
+.btn,.iconbtn{display:inline-flex;align-items:center;gap:.45rem;justify-content:center}
+.btn svg,.nav svg,.iconbtn svg{flex:0 0 auto}
+.pubhead{background:linear-gradient(135deg,#0B72C4,#005EAB 60%,#004A87)}
+.main.anim{animation:fadeUp .28s ease-out}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.nav button{position:relative}
+.nav button.active{box-shadow:inset 0 0 0 1px rgba(239,120,20,.18)}
+tbody tr td{transition:background .14s ease}
+.timeline li::before{transition:transform .2s ease}
+.timeline li:hover::before{transform:scale(1.25)}
+/* profil + notifications — en bas de la sidebar, alignés à gauche */
+.sideuser{display:flex;align-items:center;gap:.6rem;margin-top:auto;padding:.7rem .5rem .55rem;border-top:1px solid var(--border-soft)}
+.sideuser .ava{width:2.15rem;height:2.15rem;border-radius:50%;background:linear-gradient(135deg,#F9942F,#EF7814);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex:0 0 auto}
+.sideuser .who b{display:block;font-size:.8rem;line-height:1.15}
+.sideuser .who span{font-size:.68rem;color:var(--muted)}
+.sideuser .iconbtn{margin-left:auto;width:2.1rem;height:2.1rem;position:relative}
+.sideuser .iconbtn .dotn{position:absolute;top:.35rem;right:.4rem;width:.44rem;height:.44rem;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--panel)}
+.side .foot{margin-top:0;border-top:0;padding-top:.45rem}
+.search .sic{position:absolute;left:.72rem;top:50%;transform:translateY(-50%);color:var(--muted);display:flex}
+.appbar .search input{padding-left:2.25rem}
+.demo-tag{letter-spacing:.06em}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media(max-width:820px){.sideuser{margin:0 0 0 auto;padding:0;border:0}.sideuser .who{display:none}}
+
+/* ====== v5 : plus d'animations, plus de dégradés ====== */
+body{background:
+  radial-gradient(1100px 420px at 78% -12%, rgba(239,120,20,.07), transparent 70%),
+  radial-gradient(900px 500px at -10% 110%, rgba(0,94,171,.05), transparent 65%),
+  var(--bg)}
+.side{background:linear-gradient(180deg,var(--panel) 72%, rgba(239,120,20,.035))}
+.nav button.active{background:linear-gradient(90deg,var(--accent-soft),rgba(239,120,20,.06))}
+.nav button svg{transition:transform .2s ease}
+.nav button:hover svg{transform:translateX(2px) scale(1.06)}
+th{background:linear-gradient(180deg,var(--tint),transparent)}
+.demo-tag{background:linear-gradient(135deg,var(--accent-soft),rgba(239,120,20,.09))}
+.stat .ic{background-image:linear-gradient(135deg,rgba(255,255,255,.55),transparent);transition:transform .25s ease}
+.card:hover .ic{transform:scale(1.08) rotate(-3deg)}
+.stat.hero .ic{animation:pulseIc 3.2s ease-in-out infinite}
+@keyframes pulseIc{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.stat.hero::after{animation:floaty 6s ease-in-out infinite alternate}
+.stat.hero::before{animation:floaty 8s ease-in-out infinite alternate-reverse}
+@keyframes floaty{from{transform:translate(0,0)}to{transform:translate(-8px,8px)}}
+.rdv .h{background:linear-gradient(135deg,var(--tint),var(--hover))}
+.statebig{background-image:linear-gradient(135deg,rgba(255,255,255,.35),transparent)}
+.btn{will-change:transform}
+.btn:active,.iconbtn:active,.nav button:active{transform:scale(.96)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px -10px rgba(24,22,16,.25)}
+.iconbtn:hover{transform:translateY(-1px)}
+.iconbtn:hover svg{animation:ring .5s ease}
+@keyframes ring{0%{transform:rotate(0)}25%{transform:rotate(-13deg)}55%{transform:rotate(11deg)}80%{transform:rotate(-6deg)}100%{transform:rotate(0)}}
+/* entrées en cascade */
+.anim .stats>.card,.anim .two-col>.card{animation:fadeUp .45s ease-out backwards}
+.anim .stats>.card:nth-child(2),.anim .two-col>.card:nth-child(2){animation-delay:.07s}
+.anim .stats>.card:nth-child(3){animation-delay:.14s}
+.anim .stats>.card:nth-child(4){animation-delay:.21s}
+.anim tbody tr{animation:fadeUp .4s ease-out backwards}
+.anim tbody tr:nth-child(1){animation-delay:.05s}.anim tbody tr:nth-child(2){animation-delay:.1s}
+.anim tbody tr:nth-child(3){animation-delay:.15s}.anim tbody tr:nth-child(4){animation-delay:.2s}
+.anim tbody tr:nth-child(5){animation-delay:.25s}.anim tbody tr:nth-child(6){animation-delay:.3s}
+.anim tbody tr:nth-child(n+7){animation-delay:.34s}
+.anim .rdv{animation:fadeUp .45s ease-out backwards}
+.anim .rdv:nth-child(2){animation-delay:.08s}.anim .rdv:nth-child(3){animation-delay:.16s}.anim .rdv:nth-child(4){animation-delay:.24s}
+.anim .timeline li{animation:fadeUp .4s ease-out backwards}
+.anim .timeline li:nth-child(1){animation-delay:.04s}.anim .timeline li:nth-child(2){animation-delay:.09s}
+.anim .timeline li:nth-child(3){animation-delay:.14s}.anim .timeline li:nth-child(4){animation-delay:.19s}
+.anim .timeline li:nth-child(n+5){animation-delay:.24s}
+.anim fieldset{animation:fadeUp .45s ease-out backwards}
+.anim fieldset:nth-of-type(2){animation-delay:.07s}.anim fieldset:nth-of-type(3){animation-delay:.14s}
+.anim fieldset:nth-of-type(4){animation-delay:.21s}.anim fieldset:nth-of-type(5){animation-delay:.28s}.anim fieldset:nth-of-type(6){animation-delay:.35s}
+.anim .phoneframe{animation:fadeUp .5s ease-out backwards}
+.chip{animation:chipPop .3s ease-out backwards}
+@keyframes chipPop{from{transform:scale(.85);opacity:0}}
+.timeline li::before{animation:dotIn .35s ease-out backwards}
+@keyframes dotIn{from{transform:scale(0)}}
+.appbar{animation:fadeUp .3s ease-out}
+.tabs button{position:relative}
+.tabs button.active::after{content:"";position:absolute;left:.6rem;right:.6rem;bottom:-1px;height:2px;border-radius:2px;background:linear-gradient(90deg,#F9942F,#EF7814)}
+.tabs button.active{border-bottom-color:transparent}
+
+/* ====== v6 : profil à l'extrême droite, menu réductible, dark toggle ====== */
+.appbar .demo-tag{margin-left:auto}
+.side{transition:width .28s ease,flex-basis .28s ease}
+.side.collapsed{width:78px;flex:0 0 78px;padding:1.1rem .55rem}
+.side.collapsed .brand{padding:.1rem .2rem .9rem;text-align:center}
+.side.collapsed .brand img{height:30px;margin:0 auto}
+.side.collapsed .brand .tag{display:none}
+.side.collapsed .nav button{justify-content:center;padding:.6rem .4rem}
+.side.collapsed .nav .lbl{display:none}
+.side.collapsed .foot{display:none}
+.nav .lbl{white-space:nowrap}
+@media(max-width:820px){#sidetoggle{display:none}.side.collapsed{width:auto;flex:1 1 auto;padding:.55rem .7rem}.side.collapsed .nav .lbl{display:inline}.side.collapsed .brand img{height:34px}}
+
+/* ====== v7 : beaucoup plus d'animations ====== */
+.anim h1{animation:slideL .38s ease-out backwards}
+.anim .topbar .sub{animation:slideL .45s .06s ease-out backwards}
+@keyframes slideL{from{opacity:0;transform:translateX(-10px)}}
+.stat.hero{background-size:170% 170%;animation:heroShift 9s ease-in-out infinite alternate}
+@keyframes heroShift{from{background-position:0% 0%}to{background-position:90% 100%}}
+.btn.primary{position:relative;overflow:hidden}
+.btn.primary::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 32%,rgba(255,255,255,.38) 50%,transparent 68%);transform:translateX(-130%)}
+.btn.primary:hover::after{animation:sheen .75s ease}
+@keyframes sheen{to{transform:translateX(130%)}}
+tbody tr:hover td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+tbody tr td:first-child{transition:box-shadow .15s ease}
+.prio.urgente{animation:blinkTxt 1.9s ease-in-out infinite}
+@keyframes blinkTxt{0%,100%{opacity:1}50%{opacity:.55}}
+.bell svg{animation:ringIdle 7s ease-in-out infinite;transform-origin:top center}
+@keyframes ringIdle{0%,88%,100%{transform:rotate(0)}90%{transform:rotate(-13deg)}93%{transform:rotate(10deg)}96%{transform:rotate(-5deg)}98%{transform:rotate(2deg)}}
+.bell .dotn{animation:dotPulse 2.2s ease-out infinite}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 2px var(--panel),0 0 0 0 rgba(239,120,20,.35)}50%{box-shadow:0 0 0 2px var(--panel),0 0 0 6px rgba(239,120,20,0)}}
+.toast{position:relative;overflow:hidden}
+.toast::after{content:"";position:absolute;left:0;bottom:0;height:2.5px;width:100%;background:linear-gradient(90deg,#F9942F,#EF7814);animation:shrinkBar 3.4s linear forwards}
+@keyframes shrinkBar{to{width:0}}
+.timeline li:first-child::after{content:"";position:absolute;left:-6px;top:.28em;width:10px;height:10px;border-radius:50%;border:2px solid var(--accent);animation:ping 1.9s ease-out infinite}
+@keyframes ping{0%{transform:scale(.6);opacity:.8}100%{transform:scale(2.2);opacity:0}}
+.overlay{animation:fadeIn .2s ease-out}
+@keyframes fadeIn{from{opacity:0}}
+.wa{animation:popIn .32s cubic-bezier(.34,1.56,.64,1) backwards}
+@keyframes popIn{from{transform:scale(.86) translateY(10px);opacity:0}}
+.phoneframe{animation:floatY 5.5s ease-in-out infinite alternate}
+@keyframes floatY{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+.nav button.active{animation:navPop .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes navPop{from{transform:scale(.94)}}
+.sig:hover{border-color:var(--accent);box-shadow:0 0 0 4px rgba(239,120,20,.08)}
+.sig{transition:border-color .2s ease,box-shadow .2s ease}
+/* graphique activité */
+.bars{display:flex;gap:.9rem;align-items:flex-end;height:132px;padding-top:.4rem}
+.barcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:.45rem;height:100%;justify-content:flex-end}
+.bar{width:100%;max-width:46px;height:var(--h);border-radius:9px 9px 4px 4px;background:linear-gradient(180deg,#F9942F,#EF7814);animation:growUp .65s cubic-bezier(.22,1,.36,1) backwards;transform-origin:bottom;transition:filter .15s ease,transform .15s ease}
+.barcol:hover .bar{filter:brightness(1.12);transform:scaleY(1.03)}
+.barcol span{font-size:.7rem;color:var(--muted)}
+@keyframes growUp{from{transform:scaleY(0)}}
+/* sparkline */
+.spark{width:100%;height:26px;margin-top:.25rem;overflow:visible}
+.spark polyline{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:170;stroke-dashoffset:170;animation:draw 1.1s .35s ease-out forwards}
+.spark circle{fill:var(--accent);opacity:0;animation:appear .3s 1.25s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes appear{to{opacity:1}}
+
+/* ====== v8 : retour à la charte AMR — fond bleuté, plus de bleu ====== */
+:root{
+  --bg:#F4F8FC; --panel:#FFFFFF; --hover:#EDF4FA; --tint:#EAF6FC;
+  --text:#16283A; --muted:#5F7183; --border:#D8E4EE; --border-soft:#E6EFF7;
+  --shadow:0 1px 2px rgba(10,40,70,.05),0 10px 28px -14px rgba(10,40,70,.14);
+}
+:root[data-theme="light"]{
+  --bg:#F4F8FC; --panel:#FFFFFF; --hover:#EDF4FA; --tint:#EAF6FC;
+  --text:#16283A; --muted:#5F7183; --border:#D8E4EE; --border-soft:#E6EFF7;
+  --shadow:0 1px 2px rgba(10,40,70,.05),0 10px 28px -14px rgba(10,40,70,.14);
+}
+body{background:
+  radial-gradient(1000px 400px at 80% -12%, rgba(0,94,171,.06), transparent 68%),
+  radial-gradient(900px 500px at -8% 108%, rgba(0,175,236,.05), transparent 65%),
+  radial-gradient(700px 320px at 45% -8%, rgba(239,120,20,.04), transparent 70%),
+  var(--bg)}
+.side{background:linear-gradient(180deg,var(--panel) 74%, rgba(0,94,171,.035))}
+.card h3{color:var(--structure)}
+.rdv .h{background:var(--tint);color:var(--structure)}
+.rdv .type{color:var(--structure)}
+.bars .bar{background:linear-gradient(180deg,#2E86D4,#005EAB)}
+.barcol:hover .bar{filter:brightness(1.15)}
+th{color:#4A6580}
+.pubhead{background:linear-gradient(135deg,#0B72C4,#005EAB 60%,#004A87)}
+.brand{border-bottom-color:var(--border-soft)}
+.stat .ic{background-image:linear-gradient(135deg,rgba(255,255,255,.5),transparent)}
+:root[data-theme="dark"] .card h3,:root[data-theme="dark"] .rdv .type,:root[data-theme="dark"] .rdv .h{color:var(--structure)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) body{background:var(--bg)}}
+
+/* ====== v9 : lisibilité dark mode + logo en bas de sidebar ====== */
+:root[data-theme="dark"]{--hover:#243040;--tint:#1F2B3A;--border:#313D4C;--border-soft:#26313E}
+:root[data-theme="dark"] .iconbtn{background:var(--hover);border-color:#3D4A5A;color:var(--text)}
+:root[data-theme="dark"] .btn{border-color:#37434F}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .iconbtn{background:#243040;border-color:#3D4A5A;color:#EBEFF4}
+}
+.stat .ic{box-shadow:inset 0 0 0 1px rgba(128,140,155,.16)}
+.iconbtn svg{stroke-width:2.1}
+/* logo : en bas, variante blanche en sombre */
+.brand{border-bottom:0;border-top:1px solid var(--border-soft);padding:.95rem .4rem .35rem;margin:0}
+.logo-dark{display:none}
+:root[data-theme="dark"] .logo-light{display:none}
+:root[data-theme="dark"] .logo-dark{display:block}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .logo-light{display:none}
+  :root:not([data-theme="light"]) .logo-dark{display:block}
+}
+
+/* ====== v10 : dropdown profil, page notifications, dégradés & animations MAX ====== */
+.appbar .search::before{content:none!important}
+/* un seul logo, en bas, centré */
+.brand{text-align:center}
+.brand img{height:46px;margin:0 auto;display:block}
+/* dropdown profil */
+.userchip{position:relative;cursor:pointer;user-select:none}
+.userchip:hover{border-color:var(--accent)}
+.umenu{position:absolute;top:calc(100% + .5rem);right:0;min-width:230px;background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 18px 44px -12px rgba(10,40,70,.3);padding:.45rem;z-index:60;animation:popIn .25s cubic-bezier(.34,1.56,.64,1)}
+.umenu .uhead{padding:.55rem .7rem .6rem;border-bottom:1px solid var(--border-soft);margin-bottom:.35rem}
+.umenu .uhead b{display:block;font-size:.85rem}
+.umenu .uhead span{font-size:.72rem;color:var(--muted)}
+.umenu button{display:flex;align-items:center;gap:.6rem;width:100%;background:none;border:0;padding:.5rem .7rem;border-radius:9px;color:var(--text);text-align:left;font-size:.85rem;transition:background .13s ease,transform .13s ease}
+.umenu button:hover{background:var(--hover);transform:translateX(3px)}
+.umenu .usep{border-top:1px solid var(--border-soft);margin:.35rem 0}
+.umenu .udanger{color:var(--danger)}
+.countb{position:absolute;top:-5px;right:-5px;background:linear-gradient(135deg,#F9942F,#EF7814);color:#fff;font-size:.62rem;font-weight:700;min-width:1.05rem;height:1.05rem;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 .25rem;box-shadow:0 0 0 2px var(--panel);animation:dotPulse 2.2s ease-out infinite}
+/* page notifications / tâches */
+.task{display:flex;align-items:flex-start;gap:.7rem;border:1px solid var(--border-soft);border-radius:12px;padding:.7rem .85rem;margin-bottom:.55rem;background:var(--panel);transition:opacity .3s ease,transform .3s ease,background .2s ease;animation:fadeUp .4s ease-out backwards}
+.task:nth-child(2){animation-delay:.06s}.task:nth-child(3){animation-delay:.12s}.task:nth-child(4){animation-delay:.18s}.task:nth-child(5){animation-delay:.24s}
+.task:hover{background:var(--hover)}
+.task.done{opacity:.5}
+.task.done .ttxt{text-decoration:line-through}
+.task input[type=checkbox]{width:1.15em;height:1.15em;margin-top:.15rem}
+.task .ttxt{font-weight:600;display:block}
+.tprio{margin-left:auto;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.tprio.haute{color:var(--warn)} .tprio.urgente{color:var(--danger);animation:blinkTxt 1.9s infinite} .tprio.normale{color:var(--muted)}
+.tfilters{display:flex;gap:.4rem;margin-bottom:.7rem}
+.tfilters button{border:1px solid var(--border);background:var(--panel);border-radius:99px;padding:.25rem .8rem;font-size:.78rem;color:var(--muted)}
+.tfilters button.on{background:linear-gradient(135deg,var(--accent-soft),rgba(239,120,20,.14));color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+/* ===== dégradés & animations ACCENTUÉS ===== */
+body{animation:bgDrift 26s ease-in-out infinite alternate}
+@keyframes bgDrift{from{background-position:0% 0%,100% 100%,50% 0%,0 0}to{background-position:8% 4%,92% 96%,46% 3%,0 0}}
+main h1{background:linear-gradient(115deg,#0B72C4,#005EAB 30%,#EF7814 68%,#F9942F 90%);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:230% 100%;animation:slideL .38s ease-out backwards,hueSlide 8s ease-in-out infinite alternate}
+:root[data-theme="dark"] main h1{background-image:linear-gradient(115deg,#6FB3F0,#4D9FE8 30%,#F58A33 68%,#F9A45C 90%);-webkit-background-clip:text;background-clip:text}
+@keyframes hueSlide{from{background-position:0% 0}to{background-position:100% 0}}
+.stat.hero{background-image:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.28) 50%,transparent 58%),linear-gradient(135deg,#FA9C3C 0%,#EF7814 48%,#E05E00 100%);background-size:260% 100%,180% 180%;animation:heroSheen 5.2s ease-in-out infinite,glowPulse 4s ease-in-out infinite alternate}
+@keyframes heroSheen{0%{background-position:-160% 0,0% 0%}55%{background-position:-160% 0,80% 90%}75%{background-position:160% 0,90% 100%}100%{background-position:160% 0,0% 0%}}
+@keyframes glowPulse{from{box-shadow:0 10px 30px -12px rgba(239,120,20,.45)}to{box-shadow:0 18px 48px -12px rgba(239,120,20,.75)}}
+.btn.primary{background-image:linear-gradient(135deg,#FA9C3C,#EF7814 55%,#E86A00);background-size:190% 100%;animation:gradMove 4.5s ease-in-out infinite alternate}
+@keyframes gradMove{from{background-position:0% 0}to{background-position:100% 0}}
+.bars .bar{background-image:linear-gradient(180deg,#38C2F5,#2E86D4 45%,#005EAB);background-size:100% 220%;animation:growUp .65s cubic-bezier(.22,1,.36,1) backwards,barGrad 5s ease-in-out infinite alternate}
+@keyframes barGrad{from{background-position:0 0}to{background-position:0 90%}}
+.grid .card:hover{transform:translateY(-4px) scale(1.004);box-shadow:0 4px 10px rgba(10,40,70,.06),0 26px 52px -18px rgba(239,120,20,.3)}
+.rdv:hover{transform:translateX(4px);border-color:var(--accent)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes chipPop{0%{transform:scale(.8);opacity:0}70%{transform:scale(1.07)}100%{transform:scale(1);opacity:1}}
+.timeline li::before{background:linear-gradient(135deg,#F9942F,#EF7814)}
+.timeline li.pub::before{background:linear-gradient(135deg,#2E86D4,#005EAB)}
+.nav button:hover svg{transform:translateX(2px) scale(1.12) rotate(-4deg)}
+.side .foot{opacity:.8}
+.spark polyline{stroke:url(#sparkgrad)}
+
+/* v10.1 : logo collé en bas de la sidebar */
+.brand{margin-top:auto}
+.side .foot{margin-top:0}
+@media(max-width:820px){.brand{margin-top:0}}
+</style>
+
+<div class="layout">
+  <aside class="side">
+        <nav class="nav" id="nav"></nav>
+    <div class="brand"><img id="brandlogo" alt="AMR Informatique"></div>
+        <div class="foot">Maquette de démonstration<br>Darkin Production · juillet 2026</div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<div id="toasts"></div>
+<div id="modal"></div>
+
+<script>
+/* ============ DONNÉES FICTIVES ============ */
+const STATUTS = {
+  recu:{l:"Reçu",c:"#5A6B7C",cd:"#A8B8C6",next:["diagnostic","annule"]},
+  diagnostic:{l:"En diagnostic",c:"#165EAA",cd:"#6FB3F0",next:["devis","reparation","irreparable","annule"]},
+  devis:{l:"Devis envoyé",c:"#00AFEC",cd:"#45C8F5",next:["devis_ok","devis_ko","annule"]},
+  devis_ok:{l:"Devis approuvé",c:"#7A5AF8",cd:"#A78BFA",next:["reparation","attente_piece","annule"]},
+  devis_ko:{l:"Devis refusé",c:"#B3261E",cd:"#F29A93",next:["pret"]},
+  attente_piece:{l:"En attente de pièce",c:"#B4540A",cd:"#F0A05C",next:["reparation","annule"]},
+  reparation:{l:"En réparation",c:"#EF7814",cd:"#F58A33",next:["controle","attente_piece","annule"]},
+  controle:{l:"Contrôle qualité",c:"#0E7490",cd:"#38C2E0",next:["pret","reparation"]},
+  pret:{l:"Prêt — à retirer",c:"#1D7A4F",cd:"#4CC08A",next:["livre"]},
+  livre:{l:"Restitué",c:"#3D5A80",cd:"#8FB4D9",next:["clos"]},
+  clos:{l:"Clos",c:"#28323E",cd:"#AFBECB",next:[]},
+  irreparable:{l:"Irréparable",c:"#6B7280",cd:"#A7B0BA",next:["pret"]},
+  annule:{l:"Annulé",c:"#9AA5B1",cd:"#B8C2CC",next:[]}
+};
+const TECHS = ["TURAN Tolgahan","FORESTI Hugo","TURAN Saadet","EL OUNASSE Anis"];
+const USER="TURAN Tolgahan", ROLE="Admin";
+const LOGO_LIGHT="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FscXVlXzEiIGRhdGEtbmFtZT0iQ2FscXVlIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDMwMCAxNjgiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICMxNTVmYWM7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogcmdiYSgyMSwgOTUsIDE3MiwgLjE2KTsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiByZ2JhKDIxLCA5NSwgMTcyLCAuNDQpOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6ICNmMDc5MTQ7CiAgICAgIH0KCiAgICAgIC5jbHMtNSB7CiAgICAgICAgZmlsbDogcmdiYSgyMSwgOTUsIDE3MiwgLjEpOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTEuMDIsNjUuOGMyLjg2LTUuOTIsNy43LTEzLjcxLDExLjIyLTE5Ljg0LDUuMi04LjQyLDkuNjktMTcuOTgsMTUuNzktMjUuNzQsMy41Mi00LjQ5LDEzLjc4LTEuNDEsMTQuMzYsNC40Ni44Myw4LjQuNDksMTYuOTguNTksMjUuNDFsLjEyLDIzLjAzYy4xMiw5LjY1LjQsMTguNTUuMzgsMjguMzItMi41My0uMDItNC45NS0uMDYtNy40OC4xMy0uMzItMjAuMzUuMjMtNDAuNzgtLjEzLTYxLjE0LS4wNC0yLjUyLTEuMi03Ljc4LTQuNzctNS45MS0yLjQ3LDIuMDMtNi41MSwxMC4xLTguMjMsMTMuMjRsLTEzLjk5LDI1LjQ1Yy0xLjU0LDIuODEtNS42MSwxMC42NS03LjMxLDEyLjkyLS44NS0yLjAyLTIuNjUtNS4yMi0zLjcxLTcuMjVsLTYuNDktMTIuNDUtOC4xNS0xNS43MWMtMi42Ny01LjE0LTYuMDEtMTIuNjgtMTAuNzUtMTYtNC42MiwzLjU5LTMuOTMsNi4yMS0zLjkxLDExLjkuMDMsOS41My0uMzEsMTkuMDEtLjQ4LDI4LjUxLS4wOSw4Ljc3LS4xMiwxNy41NC0uMDcsMjYuMzEtMi41NS0uMDQtNS4xLS4wMy03LjY1LjA0LS4xOS0zLjc2LS4wOC04LjQ0LS4wOC0xMi4yNmwuMjYtMzAuMDl2LTE5LjEzYzAtMy42OC0uMTktNy41Mi4yMS0xMS4xNy43NC02LjcxLDIuNjctMTAuMTYsOS42MS0xMC43MiwxMC4xNSwwLDExLjI1LDYuNTksMTQuOTUsMTQuNiwyLjAxLDQuMyw0LjAzLDguNTgsNi4wOCwxMi44NWw2LjE1LDEyLjg4YzEuMDksMi4yNiwyLjY3LDUuMDksMy40Nyw3LjM2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTIxNC45MSwzNS4zNWMzLjY1LS41MSw4LjQyLDEuMjgsMTEuMzYsMy4zOSw4LjU1LDYuMTQsMTYuOSwxMy4wNywyNC43NiwyMC4wMywxLjg5LDEuNjcsMTEuNTUsMTAuMzQsMTIuMjUsMTIuMTctLjY4LDEuNDctMTAuODYsMTMuNTMtMTIuNTcsMTUuNTIsNC40MSwzLjk4LDEyLjkyLDEwLjc1LDE2LjY1LDE1LjI0LTMuMzMtLjY2LTkuMTYtLjMtMTIuODQtLjMzLTMuNTMtLjQtMTAuNDctNS4yNS0xMy44NC03LjI3LTYuOTUtNC4xOS0xMy45NS04LjMtMjEuMDEtMTIuMzEuNDYsMi43Ny4yOSwxNi4wMi4zMywxOS42Mi0zLjI2LS4wMy02LjUzLDAtOS43OS4wNS45OC0xNi45NS41Mi0zNC4xNywxLjA5LTUxLjE1LjA4LTMuMzUtLjE0LTYuNjktLjAxLTEwLjAzLjEyLTMuMjguNzItMy43NSwzLjYyLTQuOTJaTTIxOS42NSw3OS4wNmM0LjEyLTMuMzIsOC4yNy02LjU5LDEyLjQ3LTkuODFsOS45LTcuNzNjLTcuMDktNC45MS0xNS4xMS0xMS43NC0yMi4xNC0xNy4wOGwuMDYsMjAuOTFjLjAxLDQuMjguMTksOS41OC0uMywxMy43MVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yMTEuNzgsMTcuMzFjNi44MS0uNSwxNiw3LjMxLDIxLjYsMTEuMjUsMTEuMzksOC4wMiwyMi43MywxNi4xLDM0LjAyLDI0LjI2LDMuNjgsMi42NCwxMi43OSw5LjU2LDE2LjI5LDExLjQ1LTIuMjYsMi44OS0xMC42MywxNC42OS0xMS4yMywxNy41MS0uMi45My4yNywyLjAyLjY1LDIuODYsMS4wNywyLjM1LDIuNyw0LjU1LDQuMDUsNi43NiwyLjA3LDMuMzgsNC4wMyw2LjgyLDYuMTksMTAuMTUtNC4wMy0uNDEtOC4yMy4xOS0xMi4xOS0uMzQtMi40Ni0uMzMtNi4yMy00LjQ0LTguMTMtNi4yLTMuMjMtMy4wMS02LjUxLTUuOTYtOS44NC04Ljg1LDIuMzMtMi42NywxMC41LTExLjUyLDEyLjE3LTE1LjE0LjM4LS44Mi0yLjI4LTMuMjktMy4xNC00LjE2LTExLjI5LTExLjQzLTI0LjQ5LTIyLjUxLTM3Ljg2LTMxLjM3LTMuODEtMi41My0xNC4zMS0zLjcxLTE0LjYyLDIuNTctMS4wNSwyMS4xLS41OSw0Mi4zNi0xLjI0LDYzLjQ4LTIuNDYtLjItNS41OC0uMDgtOC4xNS0uMTMtLjUtMTIuODMuMjktMjYuODMuMjMtMzkuNjkuMDYtNy45My0uMzEtMTUuNzctLjEyLTIzLjcuMjQtOS42Mi0uMjEtMTguMzEsMTEuMzMtMjAuNjlaIi8+CiAgPHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjEuMzYsMTEwLjAzYzUuODgtLjE5LDEyLjI0LS4wNywxOC4xNS0uMDdoMzEuMzRzOTUuMDQsMCw5NS4wNCwwaDc3LjU1czI1LjE2LS4wMywyNS4xNi0uMDNjNC45NSwwLDEwLjQ5LS4xMiwxNS4zOS4xMS0uMTMsMi42NS0uMjEsNS4zMS0uMjUsNy45Ny0zNi4yMy0uNDktNzMuMy0uMTEtMTA5LjU4LS4xMWwtMTUyLjc1LjA1Yy0uMTctMi41OC0uMDktNS4zMy0uMDYtNy45M1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xODEuOTksMzUuODVjMi40NC43MywyLjE0LDUuNzcsMi4xMiw3LjkzLS4wNSw0Ljg2LS4xOCw5LjgyLS4xOSwxNC42OC0uMDUsMTQuMzItLjAyLDI4LjYzLjA5LDQyLjk1LTIuMzgsMC00LjYzLjAyLTcsLjEzLS4xNC02Ljc3LjA2LTEzLjU3LS4wOC0yMC4zNC0uMDItMS4xNS4wNS0zLjE0LS45Mi0zLjgxLTEuNS4xMi01LjMxLDQuMzEtNi41Miw1LjVsLTEyLjEzLDExLjkyYy0xLjk1LDEuOTItNS40LDUuNTMtNy40OSw3LjA1LTEuNzctMS41NS00LjAzLTQuNi01LjY0LTYuNTEtNC4wMi00LjgyLTcuOTUtOS43Mi0xMS45Ny0xNC41NC0uNjQtLjc3LTEuMTMtMS40LTIuMTQtMS40OC0uMTMuMDktLjI2LjE4LS4zNy4zLTEuMTYsMS4xNC0uNjUsMTguOS0uNjQsMjEuODctMy4wMy0uMTctNi4wNy0uMTQtOS4xLjA3bC0uMDUtNC4xOGMtLjA4LTExLjE0LjMtMjIuNDQuMzUtMzMuNTguMDMtNy42NS0uMDctMTUuMy40MS0yMi45My4wOC0xLjI0LjQtMy4zNywxLjc5LTMuNzksMi44NCwxLjIyLDkuMjEsMTQuNywxMC44NSwxNy43OWwxOC4zNCwzNS4yMWMxLjk2LTMuMTIsNC45NC05LjA2LDYuODQtMTIuNWwxNC41MS0yNi4yOGMyLjc4LTUuMDYsNS42My0xMC44Myw4Ljk3LTE1LjQ0WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTY2Ljc4LDE2LjI5YzUuMjYtLjIzLDguNzUsMy41NiwxMS4xLDcuOSwzLjYzLDYuNzEsNS45NywxNC41MSw4LjUzLDIxLjczbDEyLjQ1LDM1LjJjMi4wNCw1LjgyLDQuOTMsMTQuODgsNy4yNywyMC4yOS0yLjM3LjA3LTUuMDEuMDMtNy40LjA0LTEuMzUtNC4yNy0zLjQ3LTkuMjYtNS4xMy0xMy41MWwtOS4xMi0yMy40NWMtMi4zOS02LjA4LTQuNy0xMi4xOS02LjkyLTE4LjMzLTEuNTItNC4yOC0zLjc0LTEyLjgtNi42NC0xNi41MS0xLjgzLTIuMzQtNS42LTIuMzEtOC4yNi0uNzEtMi45MiwyLjk1LTguNiwxNi44NC0xMC42OCwyMS4zN2wtMTguMjMsMzkuOTVjLTEuMywyLjg1LTMuNTEsOC4wNS01LjE2LDEwLjc0LS4zNS41Ny01LjU1LjM4LTcuMDYuNDcsMS4xNS0zLjIxLDQuMTItOS4zNSw1LjY0LTEyLjc1bDExLjg5LTI2LjUsOS43OS0yMS42N2MzLjYtNy45Niw4LjY3LTIxLjk3LDE3Ljk0LTI0LjI0WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTY1Ljc5LDI5LjU0YzIuOTEsMCw0LjMxLDEuMzQsNS4zOCwzLjkyLDIuMzQsNS42LDMuNzUsMTEuNzIsNi4wMSwxNy4zNCw2Ljc3LDE2LjgyLDEyLjgsMzQuMDYsMTkuODEsNTAuNzctMi4zNy0uMjItNS41MS0uMjEtNy44Ny0uMDQtNS4yMy0xMS40Mi0xMC4zOS0yNS41Ny0xNC45NS0zNy4zN2wtNC45NS0xMi44Yy0uOTUtMi40Ni0yLjMxLTUuNjYtMi45Ny04LjEyLS41NiwxLjMxLTEuMTMsMi40OC0xLjc2LDMuNzUtMi4wMSwzLjg4LTQuMDksOC43MS01Ljk5LDEyLjc2bC0xMi4zNCwyNi4yN2MtMS44OCwzLjk5LTUuMzUsMTEuODctNy41NiwxNS40My0yLjU2LS4wNy01LjUzLS4yMy04LjAzLjA0LDkuNjktMjIuMjgsMjAuNTMtNDQuMywzMC40LTY2LjUyLDEuMTctMi42MywxLjk5LTQuNDYsNC44My01LjQ0WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTY1LjMxLDU5LjM1YzEuMS43Niw5LjYzLDI3LjMzLDEwLjQ3LDMwLjQ2LTQuNDEtLjA4LTguODMtLjEyLTEzLjI0LS4xMi0zLjI4LDAtNy45Mi0uMTctMTEuMDUuMjMsNC45My05LjM2LDguNTktMjAuOTYsMTMuODEtMzAuNThaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTQzLjY3LDE0MS42NmMyLjE4LTQuOTksNC44LTEwLjQyLDcuNDYtMTUuMjIuNjItMS4xMiwxLjEtMS42MSwyLjMzLTEuMjguODMsMS4zNiwzLjE4LDIwLjUxLDMuNzQsMjMuODQtMS44NC0uMzQtMi41MS0uMzMtNC4zOC0uMjktLjI5LTIuNzYtLjgyLTUuNDYtMS4wMi04LjIzLS40My0xLjktLjQ1LTMuNjktLjQ2LTUuNjEtLjkzLDIuMTUtNS45NiwxMy4wNi03LjQ1LDEzLjk4bC0uNTQtLjE1Yy0yLjAzLTEuNzMtNi4yMi0xMS4xNC03LjAzLTEzLjg4LS43Myw0LjYxLTEuMjEsOS4yLTEuOTcsMTMuODItMS41MiwwLTIuNzIuMDItNC4yNC4xMy4yNC0yLjMxLDMuMTItMjMuMDgsMy43My0yNC4xMi4xNi4wNC44MS4yNC44OS4zLDIuMjksMS44Niw4LjA5LDE0LjMyLDguOTMsMTYuNzFaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjMzLjA2LDE0Ny43MWMtMTIuNjUsNS45MS0yMy40Mi03LjY1LTE2LjUtMTcuOTcsMS44My0yLjY4LDQuNjQtNC41NCw3LjgzLTUuMTUsMy40OS0uNjksNy4xLjA1LDEwLjA0LDIuMDUsMi41NywxLjczLDQuMzMsNC40NCw0Ljg2LDcuNS44Nyw0LjgxLS41Niw3LjczLTMuMTgsMTEuNDgsMS40OSwxLjY1LDIuOTcsMy40Myw0LjQyLDUuMTMtMS42Mi0uMTgtMy4zMS0uMjgtNC45NC0uNC0uNy0uOTgtMS40LTEuOTctMi4wOC0yLjk3LS43Ni0xLjA0LTEuNjEtMi4zMS0yLjU0LTMuMTctMS43Ny0xLjkzLTMuNjQtNC40Ni01LjIyLTYuNmwzLjk5LjE4YzEuODEsMS4yOCwyLjU2LDIuOTMsNC4wNCw0LjMyLDEuMDgtMi43MiwyLjE4LTUuNzUuODUtOC41NS0xLjk2LTQuMTMtNi40Mi02LjUtMTAuNzEtNC41Ny0yLjA5Ljk0LTMuNzEsMi42OC00LjUsNC44My0xLjYzLDQuNDIuMiw5LjA2LDQuNzEsMTAuNjksMi40Ni44OSw0LjE2LjU4LDYuNjYuMy43MywxLjIyLDEuNDYsMS44NiwyLjI4LDIuOTNaIi8+CiAgPHBhdGggY2xhc3M9ImNscy00IiBkPSJNMTQzLjIsMjkuNjFjNi4yMS0uMzIsMTMuNjguMTEsMjAuMTgtLjEyLTIuOTUsNi41Mi02LjAyLDEyLjk5LTkuMjEsMTkuNC0uODksMi4wMy0yLjA5LDQuNDMtMy4zNiw2LjI0LTEuNDQtMi40NS0zLjY3LTcuOTktNC44MS0xMC43M2wtNi4wOS0xNC41NiwzLjI5LS4yMloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMDcuNDUsMTI0Ljk3YzMuNDctLjAxLDcuNDEtLjI2LDEwLjgxLjMxLDcuNSwxLjI2LDYuMzMsMTIuNzMtLjc4LDEzLjAxaC0uMDhzLS4yMi4yNi0uMjIuMjZjLjI5LDEuMTYsNyw5LjIyLDguMTcsMTAuNTMtMi41MS0uMzItNS4xOS4wNi02Ljg3LTEuNDktMS44My0yLjYtNC42Mi01LjQ5LTUuOTctOC4zNC0uMi0uNDEtLjU0LTMuMDUtLjYyLTMuNjUtLjI0LjM2LjA5LDExLjc1LjExLDEzLjE4LTEuMzUtLjEyLTMuMDctLjExLTQuNDYtLjE0LjAyLTcuNDkuMjMtMTYuMjgtLjEtMjMuNjZaTTExNy43MywxMzMuOThjNS41NS00Ljk2LTQuNDEtNC45LTYuMDktNS44My4zLDEuOTgtLjE1LDUuNTIuNTQsNi4zLjkyLjM1LDQuNzEtLjE3LDUuNTUtLjQ3WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTkwLjk5LDEyNC4zNGM2LjY1Ljk1LDExLjM2LDYuOTksMTAuNjcsMTMuNjctLjY5LDYuNjgtNi41MywxMS42My0xMy4yNCwxMS4yMS02LjctLjQyLTExLjg4LTYuMDctMTEuNzItMTIuNzguMTYtNi43Miw1LjU5LTEyLjExLDEyLjMxLTEyLjIyLjA1LDEuMTUuMDUsMi43Ni40LDMuODItMi45OS43NC01LjYzLDEuNzEtNy4zMyw0LjUzLTEuMTEsMS44Ny0xLjQzLDQuMS0uODgsNi4yLDEuMTEsNC4yMiw0LjQ2LDUuNjUsOC4yMSw2Ljg3bC4wNi0uMDRjMy4wMS0xLjk1LDYuNTktMS42NCw3Ljc5LTcuMTMuNDctMi4xNi4wNS00LjQyLTEuMTYtNi4yNi0yLjEtMy4yMS00Ljg3LTMuMDctNi40Ny00LjE4Ljg3LTEuODctLjYyLTIuNzYsMS4zNS0zLjY5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTQ4Ljk2LDEyNC44MWwyLjguMjJjLS4wOSw3LjM0LDAsMTQuNzUtLjA2LDIyLjEsMCwuOS4wMiwxLjE3LS41MywxLjY2LS4yMS4wMi0uNDIuMDItLjYzLS4wMi0xLjkzLS4zNi0xMi40My0xMy4xMS0xNC4xNi0xNS40OC4wNy40Mi4xMy44NS4xOCwxLjI4LjE1LDEuNTUuNDgsMTMuMzgtLjEyLDE0LjEybC00LjA4LjA2Yy0uMjgtNi4xOC4xMy0xMi41NC0uMTItMTguNzQtLjA2LTEuNTEtLjQxLTQuMTgsMS4wOS00LjkzLjgzLjA4LDEuNjkuNjIsMi4yNiwxLjIyLDQuMjMsNC40LDcuOTEsOS4yNywxMi4xNCwxMy43LS41NC0yLjU1LS42LTExLjc5LS40LTE0LjU0LjUtLjYuNzUtLjQ4LDEuNjUtLjY1WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI2OC44NiwxMjQuOTVsMTQuNDkuMDRjLjA5LDEuMzIuMTgsMi42My4yNiwzLjk1LTMuMzYtLjI5LTcuMDUtLjAyLTEwLjU4LS4yOC4xMywxLjg3LjA1LDMuNTItLjAxLDUuMzgsMy40Ni0uMDcsNi45Mi0uMDksMTAuMzctLjA1bC4yMSwzLjk1Yy0xLjU4LS4xMS04Ljg3LS4zMy0xMC4yOS0uMDhsLS4yLjQ1Yy4wMywyLjA5LjAxLDQuMTktLjA3LDYuMjgsMi42NS0uNDMsNy41Ni0uMywxMC40LS4zLjA5LDEuMzkuMDgsMy4wNi4xMiw0LjQ4LTMuNDctLjMxLTExLjI5LS40Mi0xNC41Ny4xLS4wNS03LjIuMzUtMTctLjExLTIzLjkxWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE2MS44MiwxNDguODRjMS44NC0zLjc0LDEwLjE0LTIyLjI3LDEyLjAyLTIzLjkzLDEuNTIuMDcsMy4wNiwzLjk2LDMuNzUsNS4yNiwzLjE5LDYuMDQsNS42OCwxMi44OSw4Ljk2LDE4Ljg0LTEuODMtLjIxLTIuODItLjI5LTQuNjktLjI2LTEuMzEtMi4wNy0yLjc3LTUuMjQtMy43My03LjUzLTEuNi4wMy02LjA4LjI4LTcuMzctLjM2LDEuOTUtMy40MiwxLjUzLTMuNTksNS42Ni0zLjMyLS44Mi0xLjUxLTEuMjQtMi41Ni0xLjg2LTQuMTMuMzgtLjg0LDEuMTItMi4zNC45OS0zLjItLjg3LDEuMDUtNC41Nyw5LTUuMTMsMTAuNTUtMS4yMSwyLjQ2LTIuNDgsNS44Ni0zLjg2LDgtMS42NC0uMDUtMy4wOS0uMTMtNC43My4wOFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yNDYuNSwxMjQuNzlsMy4yMi4yM2MuMTEsNC41OS0uNjYsMTMuNzEuNTcsMTguMi4zLDEuMSwyLjUzLDEuNzgsMy42MiwyLjE0LDQuNTMtMS44MywzLjgzLTQuMzgsNC04Ljc2LjE1LTMuODQuMTEtNy44NS0uMDItMTEuNjgsMS4yNS0uMTEsMi44NS4wMSw0LjEzLjA3bC0uMDksNC40MWMuMDMsNC40LjM2LDEwLjAxLS40NiwxNC4zNC0xLDMuNTEtMy42NCw1LjAyLTYuODYsNS4yNy04LjQyLjY0LTkuNDMtNS43MS05LjA0LTEyLjQ4LjItMy40OS0uMzEtNy40NS4wMS0xMC45OS4wNC0uNDMuNTYtLjU2LjkxLS43NVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik01OC4xNiwxMjQuOThjNC40LS4wMyw4LjgtLjAzLDEzLjE5LDBsLjI0LDMuOTRjLTIuNjktLjItNi4zNS0uMTQtOS4xMS0uMTcuMjQsMS45Ni4yNCwzLjMzLjA3LDUuMjgsMi45Ni0uMDgsNS45My0uMSw4Ljg5LS4wNi4wOCwxLjIxLjQ2LDMuMDctLjQyLDMuOWwtLjc5LS4wN2MtMi41NywwLTUuMTQtLjAyLTcuNzItLjA2LjMzLDIuMDUuMjUsOC40OC4yNiwxMC45Ni0xLjQ3LDAtMi45NC4wMS00LjQuMDQtLjM4LTcuNjIuMzMtMTYuMjUtLjItMjMuNzhaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTg1LjkyLDEyNWM0LjcxLS4wNCw5LjQzLS4wNiwxNC4xNC0uMDUtLjA0LDEuMzEsMCwyLjc2LDAsNC4wOGwtNS4wMi0uMzhjLjI5LDQuMjguMDcsMTEuNDEuMDcsMTUuOWwtLjA3LDQuMTdjLTEuNTctLjA0LTIuNS0uMDItNC4wNi4xMmwuMDMtMjAuMmMtMS42OC4wNy0zLjM3LjE4LTUuMDQuMzQtLjEtMS4zNS0uMjMtMi42My0uMDQtMy45OFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yMi45MiwxMjQuNzhsMy4xMS4yMWMtLjA4LDIuNzQuMTEsMjIuOTctLjMzLDIzLjY4aC0uNjNjLTEuMTUsMC0yLjM2LS4wMi0zLjUxLS4wMiwwLTcuMDgtLjMtMTYuMywwLTIzLjEuNDMtLjY0LjQ0LS40NywxLjM3LS43NloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yMDUuNTEsMTI0Ljc4bDMuNTIuMjFjLS4xMywzLjY3LjM5LDIxLjc3LS4yMSwyMy41OWwtLjU0LjA4LTMuNzItLjAyYy0uMjItNi4yOCwwLTE2LjcxLjA5LTIzLjM1LDAtLjE0LjY1LS40MS44Ni0uNTFaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTcwLjQxLDE0MC43NWMuNTYtMS41NSw0LjI2LTkuNSw1LjEzLTEwLjU1LjEzLjg3LS42MiwyLjM2LS45OSwzLjIuNjIsMS41OCwxLjA0LDIuNjIsMS44Niw0LjEzLTQuMTMtLjI3LTMuNzEtLjEtNS42NiwzLjMybC0uMzMtLjExWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTIzMC45NywxNDQuMmMuOTMuODYsMS43OCwyLjEzLDIuNTQsMy4xN2wtLjQ1LjM0Yy0uODMtMS4wNy0xLjU1LTEuNzEtMi4yOC0yLjkzLjE4LS4yLjE0LS4yOC4yLS41OFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik04OS4wMSwxMjQuMjFjLjY2LS4wMSwxLjMyLjAzLDEuOTguMTItMS45Ny45My0uNDgsMS44Mi0xLjM1LDMuNjloLS4yM2MtLjM1LTEuMDUtLjM1LTIuNjYtLjQtMy44MVoiLz4KPC9zdmc+";
+const LOGO_DARK="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iQ2FscXVlXzEiIGRhdGEtbmFtZT0iQ2FscXVlIDEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDMwMCAxNjgiPgogIDxkZWZzPgogICAgPHN0eWxlPgogICAgICAuY2xzLTEgewogICAgICAgIGZpbGw6ICNmZmY7CiAgICAgIH0KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogcmdiYSgyMSwgOTUsIDE3MiwgLjE2KTsKICAgICAgfQoKICAgICAgLmNscy0zIHsKICAgICAgICBmaWxsOiByZ2JhKDIxLCA5NSwgMTcyLCAuNDQpOwogICAgICB9CgogICAgICAuY2xzLTQgewogICAgICAgIGZpbGw6ICNmMDc5MTQ7CiAgICAgIH0KCiAgICAgIC5jbHMtNSB7CiAgICAgICAgZmlsbDogcmdiYSgyMSwgOTUsIDE3MiwgLjEpOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xNTEuMDIsNjUuOGMyLjg2LTUuOTIsNy43LTEzLjcxLDExLjIyLTE5Ljg0LDUuMi04LjQyLDkuNjktMTcuOTgsMTUuNzktMjUuNzQsMy41Mi00LjQ5LDEzLjc4LTEuNDEsMTQuMzYsNC40Ni44Myw4LjQuNDksMTYuOTguNTksMjUuNDFsLjEyLDIzLjAzYy4xMiw5LjY1LjQsMTguNTUuMzgsMjguMzItMi41My0uMDItNC45NS0uMDYtNy40OC4xMy0uMzItMjAuMzUuMjMtNDAuNzgtLjEzLTYxLjE0LS4wNC0yLjUyLTEuMi03Ljc4LTQuNzctNS45MS0yLjQ3LDIuMDMtNi41MSwxMC4xLTguMjMsMTMuMjRsLTEzLjk5LDI1LjQ1Yy0xLjU0LDIuODEtNS42MSwxMC42NS03LjMxLDEyLjkyLS44NS0yLjAyLTIuNjUtNS4yMi0zLjcxLTcuMjVsLTYuNDktMTIuNDUtOC4xNS0xNS43MWMtMi42Ny01LjE0LTYuMDEtMTIuNjgtMTAuNzUtMTYtNC42MiwzLjU5LTMuOTMsNi4yMS0zLjkxLDExLjkuMDMsOS41My0uMzEsMTkuMDEtLjQ4LDI4LjUxLS4wOSw4Ljc3LS4xMiwxNy41NC0uMDcsMjYuMzEtMi41NS0uMDQtNS4xLS4wMy03LjY1LjA0LS4xOS0zLjc2LS4wOC04LjQ0LS4wOC0xMi4yNmwuMjYtMzAuMDl2LTE5LjEzYzAtMy42OC0uMTktNy41Mi4yMS0xMS4xNy43NC02LjcxLDIuNjctMTAuMTYsOS42MS0xMC43MiwxMC4xNSwwLDExLjI1LDYuNTksMTQuOTUsMTQuNiwyLjAxLDQuMyw0LjAzLDguNTgsNi4wOCwxMi44NWw2LjE1LDEyLjg4YzEuMDksMi4yNiwyLjY3LDUuMDksMy40Nyw3LjM2WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTIxNC45MSwzNS4zNWMzLjY1LS41MSw4LjQyLDEuMjgsMTEuMzYsMy4zOSw4LjU1LDYuMTQsMTYuOSwxMy4wNywyNC43NiwyMC4wMywxLjg5LDEuNjcsMTEuNTUsMTAuMzQsMTIuMjUsMTIuMTctLjY4LDEuNDctMTAuODYsMTMuNTMtMTIuNTcsMTUuNTIsNC40MSwzLjk4LDEyLjkyLDEwLjc1LDE2LjY1LDE1LjI0LTMuMzMtLjY2LTkuMTYtLjMtMTIuODQtLjMzLTMuNTMtLjQtMTAuNDctNS4yNS0xMy44NC03LjI3LTYuOTUtNC4xOS0xMy45NS04LjMtMjEuMDEtMTIuMzEuNDYsMi43Ny4yOSwxNi4wMi4zMywxOS42Mi0zLjI2LS4wMy02LjUzLDAtOS43OS4wNS45OC0xNi45NS41Mi0zNC4xNywxLjA5LTUxLjE1LjA4LTMuMzUtLjE0LTYuNjktLjAxLTEwLjAzLjEyLTMuMjguNzItMy43NSwzLjYyLTQuOTJaTTIxOS42NSw3OS4wNmM0LjEyLTMuMzIsOC4yNy02LjU5LDEyLjQ3LTkuODFsOS45LTcuNzNjLTcuMDktNC45MS0xNS4xMS0xMS43NC0yMi4xNC0xNy4wOGwuMDYsMjAuOTFjLjAxLDQuMjguMTksOS41OC0uMywxMy43MVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yMTEuNzgsMTcuMzFjNi44MS0uNSwxNiw3LjMxLDIxLjYsMTEuMjUsMTEuMzksOC4wMiwyMi43MywxNi4xLDM0LjAyLDI0LjI2LDMuNjgsMi42NCwxMi43OSw5LjU2LDE2LjI5LDExLjQ1LTIuMjYsMi44OS0xMC42MywxNC42OS0xMS4yMywxNy41MS0uMi45My4yNywyLjAyLjY1LDIuODYsMS4wNywyLjM1LDIuNyw0LjU1LDQuMDUsNi43NiwyLjA3LDMuMzgsNC4wMyw2LjgyLDYuMTksMTAuMTUtNC4wMy0uNDEtOC4yMy4xOS0xMi4xOS0uMzQtMi40Ni0uMzMtNi4yMy00LjQ0LTguMTMtNi4yLTMuMjMtMy4wMS02LjUxLTUuOTYtOS44NC04Ljg1LDIuMzMtMi42NywxMC41LTExLjUyLDEyLjE3LTE1LjE0LjM4LS44Mi0yLjI4LTMuMjktMy4xNC00LjE2LTExLjI5LTExLjQzLTI0LjQ5LTIyLjUxLTM3Ljg2LTMxLjM3LTMuODEtMi41My0xNC4zMS0zLjcxLTE0LjYyLDIuNTctMS4wNSwyMS4xLS41OSw0Mi4zNi0xLjI0LDYzLjQ4LTIuNDYtLjItNS41OC0uMDgtOC4xNS0uMTMtLjUtMTIuODMuMjktMjYuODMuMjMtMzkuNjkuMDYtNy45My0uMzEtMTUuNzctLjEyLTIzLjcuMjQtOS42Mi0uMjEtMTguMzEsMTEuMzMtMjAuNjlaIi8+CiAgPHBhdGggY2xhc3M9ImNscy00IiBkPSJNMjEuMzYsMTEwLjAzYzUuODgtLjE5LDEyLjI0LS4wNywxOC4xNS0uMDdoMzEuMzRzOTUuMDQsMCw5NS4wNCwwaDc3LjU1czI1LjE2LS4wMywyNS4xNi0uMDNjNC45NSwwLDEwLjQ5LS4xMiwxNS4zOS4xMS0uMTMsMi42NS0uMjEsNS4zMS0uMjUsNy45Ny0zNi4yMy0uNDktNzMuMy0uMTEtMTA5LjU4LS4xMWwtMTUyLjc1LjA1Yy0uMTctMi41OC0uMDktNS4zMy0uMDYtNy45M1oiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xODEuOTksMzUuODVjMi40NC43MywyLjE0LDUuNzcsMi4xMiw3LjkzLS4wNSw0Ljg2LS4xOCw5LjgyLS4xOSwxNC42OC0uMDUsMTQuMzItLjAyLDI4LjYzLjA5LDQyLjk1LTIuMzgsMC00LjYzLjAyLTcsLjEzLS4xNC02Ljc3LjA2LTEzLjU3LS4wOC0yMC4zNC0uMDItMS4xNS4wNS0zLjE0LS45Mi0zLjgxLTEuNS4xMi01LjMxLDQuMzEtNi41Miw1LjVsLTEyLjEzLDExLjkyYy0xLjk1LDEuOTItNS40LDUuNTMtNy40OSw3LjA1LTEuNzctMS41NS00LjAzLTQuNi01LjY0LTYuNTEtNC4wMi00LjgyLTcuOTUtOS43Mi0xMS45Ny0xNC41NC0uNjQtLjc3LTEuMTMtMS40LTIuMTQtMS40OC0uMTMuMDktLjI2LjE4LS4zNy4zLTEuMTYsMS4xNC0uNjUsMTguOS0uNjQsMjEuODctMy4wMy0uMTctNi4wNy0uMTQtOS4xLjA3bC0uMDUtNC4xOGMtLjA4LTExLjE0LjMtMjIuNDQuMzUtMzMuNTguMDMtNy42NS0uMDctMTUuMy40MS0yMi45My4wOC0xLjI0LjQtMy4zNywxLjc5LTMuNzksMi44NCwxLjIyLDkuMjEsMTQuNywxMC44NSwxNy43OWwxOC4zNCwzNS4yMWMxLjk2LTMuMTIsNC45NC05LjA2LDYuODQtMTIuNWwxNC41MS0yNi4yOGMyLjc4LTUuMDYsNS42My0xMC44Myw4Ljk3LTE1LjQ0WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTY2Ljc4LDE2LjI5YzUuMjYtLjIzLDguNzUsMy41NiwxMS4xLDcuOSwzLjYzLDYuNzEsNS45NywxNC41MSw4LjUzLDIxLjczbDEyLjQ1LDM1LjJjMi4wNCw1LjgyLDQuOTMsMTQuODgsNy4yNywyMC4yOS0yLjM3LjA3LTUuMDEuMDMtNy40LjA0LTEuMzUtNC4yNy0zLjQ3LTkuMjYtNS4xMy0xMy41MWwtOS4xMi0yMy40NWMtMi4zOS02LjA4LTQuNy0xMi4xOS02LjkyLTE4LjMzLTEuNTItNC4yOC0zLjc0LTEyLjgtNi42NC0xNi41MS0xLjgzLTIuMzQtNS42LTIuMzEtOC4yNi0uNzEtMi45MiwyLjk1LTguNiwxNi44NC0xMC42OCwyMS4zN2wtMTguMjMsMzkuOTVjLTEuMywyLjg1LTMuNTEsOC4wNS01LjE2LDEwLjc0LS4zNS41Ny01LjU1LjM4LTcuMDYuNDcsMS4xNS0zLjIxLDQuMTItOS4zNSw1LjY0LTEyLjc1bDExLjg5LTI2LjUsOS43OS0yMS42N2MzLjYtNy45Niw4LjY3LTIxLjk3LDE3Ljk0LTI0LjI0WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTY1Ljc5LDI5LjU0YzIuOTEsMCw0LjMxLDEuMzQsNS4zOCwzLjkyLDIuMzQsNS42LDMuNzUsMTEuNzIsNi4wMSwxNy4zNCw2Ljc3LDE2LjgyLDEyLjgsMzQuMDYsMTkuODEsNTAuNzctMi4zNy0uMjItNS41MS0uMjEtNy44Ny0uMDQtNS4yMy0xMS40Mi0xMC4zOS0yNS41Ny0xNC45NS0zNy4zN2wtNC45NS0xMi44Yy0uOTUtMi40Ni0yLjMxLTUuNjYtMi45Ny04LjEyLS41NiwxLjMxLTEuMTMsMi40OC0xLjc2LDMuNzUtMi4wMSwzLjg4LTQuMDksOC43MS01Ljk5LDEyLjc2bC0xMi4zNCwyNi4yN2MtMS44OCwzLjk5LTUuMzUsMTEuODctNy41NiwxNS40My0yLjU2LS4wNy01LjUzLS4yMy04LjAzLjA0LDkuNjktMjIuMjgsMjAuNTMtNDQuMywzMC40LTY2LjUyLDEuMTctMi42MywxLjk5LTQuNDYsNC44My01LjQ0WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtNCIgZD0iTTY1LjMxLDU5LjM1YzEuMS43Niw5LjYzLDI3LjMzLDEwLjQ3LDMwLjQ2LTQuNDEtLjA4LTguODMtLjEyLTEzLjI0LS4xMi0zLjI4LDAtNy45Mi0uMTctMTEuMDUuMjMsNC45My05LjM2LDguNTktMjAuOTYsMTMuODEtMzAuNThaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTQzLjY3LDE0MS42NmMyLjE4LTQuOTksNC44LTEwLjQyLDcuNDYtMTUuMjIuNjItMS4xMiwxLjEtMS42MSwyLjMzLTEuMjguODMsMS4zNiwzLjE4LDIwLjUxLDMuNzQsMjMuODQtMS44NC0uMzQtMi41MS0uMzMtNC4zOC0uMjktLjI5LTIuNzYtLjgyLTUuNDYtMS4wMi04LjIzLS40My0xLjktLjQ1LTMuNjktLjQ2LTUuNjEtLjkzLDIuMTUtNS45NiwxMy4wNi03LjQ1LDEzLjk4bC0uNTQtLjE1Yy0yLjAzLTEuNzMtNi4yMi0xMS4xNC03LjAzLTEzLjg4LS43Myw0LjYxLTEuMjEsOS4yLTEuOTcsMTMuODItMS41MiwwLTIuNzIuMDItNC4yNC4xMy4yNC0yLjMxLDMuMTItMjMuMDgsMy43My0yNC4xMi4xNi4wNC44MS4yNC44OS4zLDIuMjksMS44Niw4LjA5LDE0LjMyLDguOTMsMTYuNzFaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMjMzLjA2LDE0Ny43MWMtMTIuNjUsNS45MS0yMy40Mi03LjY1LTE2LjUtMTcuOTcsMS44My0yLjY4LDQuNjQtNC41NCw3LjgzLTUuMTUsMy40OS0uNjksNy4xLjA1LDEwLjA0LDIuMDUsMi41NywxLjczLDQuMzMsNC40NCw0Ljg2LDcuNS44Nyw0LjgxLS41Niw3LjczLTMuMTgsMTEuNDgsMS40OSwxLjY1LDIuOTcsMy40Myw0LjQyLDUuMTMtMS42Mi0uMTgtMy4zMS0uMjgtNC45NC0uNC0uNy0uOTgtMS40LTEuOTctMi4wOC0yLjk3LS43Ni0xLjA0LTEuNjEtMi4zMS0yLjU0LTMuMTctMS43Ny0xLjkzLTMuNjQtNC40Ni01LjIyLTYuNmwzLjk5LjE4YzEuODEsMS4yOCwyLjU2LDIuOTMsNC4wNCw0LjMyLDEuMDgtMi43MiwyLjE4LTUuNzUuODUtOC41NS0xLjk2LTQuMTMtNi40Mi02LjUtMTAuNzEtNC41Ny0yLjA5Ljk0LTMuNzEsMi42OC00LjUsNC44My0xLjYzLDQuNDIuMiw5LjA2LDQuNzEsMTAuNjksMi40Ni44OSw0LjE2LjU4LDYuNjYuMy43MywxLjIyLDEuNDYsMS44NiwyLjI4LDIuOTNaIi8+CiAgPHBhdGggY2xhc3M9ImNscy00IiBkPSJNMTQzLjIsMjkuNjFjNi4yMS0uMzIsMTMuNjguMTEsMjAuMTgtLjEyLTIuOTUsNi41Mi02LjAyLDEyLjk5LTkuMjEsMTkuNC0uODksMi4wMy0yLjA5LDQuNDMtMy4zNiw2LjI0LTEuNDQtMi40NS0zLjY3LTcuOTktNC44MS0xMC43M2wtNi4wOS0xNC41NiwzLjI5LS4yMloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0xMDcuNDUsMTI0Ljk3YzMuNDctLjAxLDcuNDEtLjI2LDEwLjgxLjMxLDcuNSwxLjI2LDYuMzMsMTIuNzMtLjc4LDEzLjAxaC0uMDhzLS4yMi4yNi0uMjIuMjZjLjI5LDEuMTYsNyw5LjIyLDguMTcsMTAuNTMtMi41MS0uMzItNS4xOS4wNi02Ljg3LTEuNDktMS44My0yLjYtNC42Mi01LjQ5LTUuOTctOC4zNC0uMi0uNDEtLjU0LTMuMDUtLjYyLTMuNjUtLjI0LjM2LjA5LDExLjc1LjExLDEzLjE4LTEuMzUtLjEyLTMuMDctLjExLTQuNDYtLjE0LjAyLTcuNDkuMjMtMTYuMjgtLjEtMjMuNjZaTTExNy43MywxMzMuOThjNS41NS00Ljk2LTQuNDEtNC45LTYuMDktNS44My4zLDEuOTgtLjE1LDUuNTIuNTQsNi4zLjkyLjM1LDQuNzEtLjE3LDUuNTUtLjQ3WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTkwLjk5LDEyNC4zNGM2LjY1Ljk1LDExLjM2LDYuOTksMTAuNjcsMTMuNjctLjY5LDYuNjgtNi41MywxMS42My0xMy4yNCwxMS4yMS02LjctLjQyLTExLjg4LTYuMDctMTEuNzItMTIuNzguMTYtNi43Miw1LjU5LTEyLjExLDEyLjMxLTEyLjIyLjA1LDEuMTUuMDUsMi43Ni40LDMuODItMi45OS43NC01LjYzLDEuNzEtNy4zMyw0LjUzLTEuMTEsMS44Ny0xLjQzLDQuMS0uODgsNi4yLDEuMTEsNC4yMiw0LjQ2LDUuNjUsOC4yMSw2Ljg3bC4wNi0uMDRjMy4wMS0xLjk1LDYuNTktMS42NCw3Ljc5LTcuMTMuNDctMi4xNi4wNS00LjQyLTEuMTYtNi4yNi0yLjEtMy4yMS00Ljg3LTMuMDctNi40Ny00LjE4Ljg3LTEuODctLjYyLTIuNzYsMS4zNS0zLjY5WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTQ4Ljk2LDEyNC44MWwyLjguMjJjLS4wOSw3LjM0LDAsMTQuNzUtLjA2LDIyLjEsMCwuOS4wMiwxLjE3LS41MywxLjY2LS4yMS4wMi0uNDIuMDItLjYzLS4wMi0xLjkzLS4zNi0xMi40My0xMy4xMS0xNC4xNi0xNS40OC4wNy40Mi4xMy44NS4xOCwxLjI4LjE1LDEuNTUuNDgsMTMuMzgtLjEyLDE0LjEybC00LjA4LjA2Yy0uMjgtNi4xOC4xMy0xMi41NC0uMTItMTguNzQtLjA2LTEuNTEtLjQxLTQuMTgsMS4wOS00LjkzLjgzLjA4LDEuNjkuNjIsMi4yNiwxLjIyLDQuMjMsNC40LDcuOTEsOS4yNywxMi4xNCwxMy43LS41NC0yLjU1LS42LTExLjc5LS40LTE0LjU0LjUtLjYuNzUtLjQ4LDEuNjUtLjY1WiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTI2OC44NiwxMjQuOTVsMTQuNDkuMDRjLjA5LDEuMzIuMTgsMi42My4yNiwzLjk1LTMuMzYtLjI5LTcuMDUtLjAyLTEwLjU4LS4yOC4xMywxLjg3LjA1LDMuNTItLjAxLDUuMzgsMy40Ni0uMDcsNi45Mi0uMDksMTAuMzctLjA1bC4yMSwzLjk1Yy0xLjU4LS4xMS04Ljg3LS4zMy0xMC4yOS0uMDhsLS4yLjQ1Yy4wMywyLjA5LjAxLDQuMTktLjA3LDYuMjgsMi42NS0uNDMsNy41Ni0uMywxMC40LS4zLjA5LDEuMzkuMDgsMy4wNi4xMiw0LjQ4LTMuNDctLjMxLTExLjI5LS40Mi0xNC41Ny4xLS4wNS03LjIuMzUtMTctLjExLTIzLjkxWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMSIgZD0iTTE2MS44MiwxNDguODRjMS44NC0zLjc0LDEwLjE0LTIyLjI3LDEyLjAyLTIzLjkzLDEuNTIuMDcsMy4wNiwzLjk2LDMuNzUsNS4yNiwzLjE5LDYuMDQsNS42OCwxMi44OSw4Ljk2LDE4Ljg0LTEuODMtLjIxLTIuODItLjI5LTQuNjktLjI2LTEuMzEtMi4wNy0yLjc3LTUuMjQtMy43My03LjUzLTEuNi4wMy02LjA4LjI4LTcuMzctLjM2LDEuOTUtMy40MiwxLjUzLTMuNTksNS42Ni0zLjMyLS44Mi0xLjUxLTEuMjQtMi41Ni0xLjg2LTQuMTMuMzgtLjg0LDEuMTItMi4zNC45OS0zLjItLjg3LDEuMDUtNC41Nyw5LTUuMTMsMTAuNTUtMS4yMSwyLjQ2LTIuNDgsNS44Ni0zLjg2LDgtMS42NC0uMDUtMy4wOS0uMTMtNC43My4wOFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yNDYuNSwxMjQuNzlsMy4yMi4yM2MuMTEsNC41OS0uNjYsMTMuNzEuNTcsMTguMi4zLDEuMSwyLjUzLDEuNzgsMy42MiwyLjE0LDQuNTMtMS44MywzLjgzLTQuMzgsNC04Ljc2LjE1LTMuODQuMTEtNy44NS0uMDItMTEuNjgsMS4yNS0uMTEsMi44NS4wMSw0LjEzLjA3bC0uMDksNC40MWMuMDMsNC40LjM2LDEwLjAxLS40NiwxNC4zNC0xLDMuNTEtMy42NCw1LjAyLTYuODYsNS4yNy04LjQyLjY0LTkuNDMtNS43MS05LjA0LTEyLjQ4LjItMy40OS0uMzEtNy40NS4wMS0xMC45OS4wNC0uNDMuNTYtLjU2LjkxLS43NVoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik01OC4xNiwxMjQuOThjNC40LS4wMyw4LjgtLjAzLDEzLjE5LDBsLjI0LDMuOTRjLTIuNjktLjItNi4zNS0uMTQtOS4xMS0uMTcuMjQsMS45Ni4yNCwzLjMzLjA3LDUuMjgsMi45Ni0uMDgsNS45My0uMSw4Ljg5LS4wNi4wOCwxLjIxLjQ2LDMuMDctLjQyLDMuOWwtLjc5LS4wN2MtMi41NywwLTUuMTQtLjAyLTcuNzItLjA2LjMzLDIuMDUuMjUsOC40OC4yNiwxMC45Ni0xLjQ3LDAtMi45NC4wMS00LjQuMDQtLjM4LTcuNjIuMzMtMTYuMjUtLjItMjMuNzhaIi8+CiAgPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNMTg1LjkyLDEyNWM0LjcxLS4wNCw5LjQzLS4wNiwxNC4xNC0uMDUtLjA0LDEuMzEsMCwyLjc2LDAsNC4wOGwtNS4wMi0uMzhjLjI5LDQuMjguMDcsMTEuNDEuMDcsMTUuOWwtLjA3LDQuMTdjLTEuNTctLjA0LTIuNS0uMDItNC4wNi4xMmwuMDMtMjAuMmMtMS42OC4wNy0zLjM3LjE4LTUuMDQuMzQtLjEtMS4zNS0uMjMtMi42My0uMDQtMy45OFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yMi45MiwxMjQuNzhsMy4xMS4yMWMtLjA4LDIuNzQuMTEsMjIuOTctLjMzLDIzLjY4aC0uNjNjLTEuMTUsMC0yLjM2LS4wMi0zLjUxLS4wMiwwLTcuMDgtLjMtMTYuMywwLTIzLjEuNDMtLjY0LjQ0LS40NywxLjM3LS43NloiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Ik0yMDUuNTEsMTI0Ljc4bDMuNTIuMjFjLS4xMywzLjY3LjM5LDIxLjc3LS4yMSwyMy41OWwtLjU0LjA4LTMuNzItLjAyYy0uMjItNi4yOCwwLTE2LjcxLjA5LTIzLjM1LDAtLjE0LjY1LS40MS44Ni0uNTFaIi8+CiAgPHBhdGggY2xhc3M9ImNscy01IiBkPSJNMTcwLjQxLDE0MC43NWMuNTYtMS41NSw0LjI2LTkuNSw1LjEzLTEwLjU1LjEzLjg3LS42MiwyLjM2LS45OSwzLjIuNjIsMS41OCwxLjA0LDIuNjIsMS44Niw0LjEzLTQuMTMtLjI3LTMuNzEtLjEtNS42NiwzLjMybC0uMzMtLjExWiIvPgogIDxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTIzMC45NywxNDQuMmMuOTMuODYsMS43OCwyLjEzLDIuNTQsMy4xN2wtLjQ1LjM0Yy0uODMtMS4wNy0xLjU1LTEuNzEtMi4yOC0yLjkzLjE4LS4yLjE0LS4yOC4yLS41OFoiLz4KICA8cGF0aCBjbGFzcz0iY2xzLTMiIGQ9Ik04OS4wMSwxMjQuMjFjLjY2LS4wMSwxLjMyLjAzLDEuOTguMTItMS45Ny45My0uNDgsMS44Mi0xLjM1LDMuNjloLS4yM2MtLjM1LTEuMDUtLjM1LTIuNjYtLjQtMy44MVoiLz4KPC9zdmc+";
+let TASKS=[
+ {id:1,from:"TURAN Tolgahan",to:"FORESTI Hugo",txt:"Commander la batterie MacBook Air M2",dossier:"AMR-2026-00185",prio:"haute",when:"il y a 2 h",done:false},
+ {id:2,from:"TURAN Saadet",to:"EL OUNASSE Anis",txt:"Préparer le kit d'intervention Le Tilleul (14h)",dossier:"AMR-2026-00184",prio:"urgente",when:"il y a 1 h",done:false},
+ {id:3,from:"TURAN Tolgahan",to:"TURAN Saadet",txt:"Rappeler Mme Klein pour l'approbation du devis",dossier:"AMR-2026-00183",prio:"normale",when:"hier",done:false},
+ {id:4,from:"FORESTI Hugo",to:"TURAN Tolgahan",txt:"Valider la commande de consommables ESET",dossier:"",prio:"normale",when:"hier",done:true}
+];
+let taskFilter="afaire", userMenuOpen=false;
+function toggleTask(id){const t=TASKS.find(x=>x.id===id);t.done=!t.done;toast(t.done?"Tâche terminée — "+t.from.split(" ")[1]+" est notifié ✓":"Tâche rouverte");render()}
+function assignTask(){const to=$("#t-to").value,txt=$("#t-txt").value.trim();if(!txt){toast("Décrivez la tâche à assigner");return}
+ TASKS.unshift({id:Date.now(),from:USER,to,txt,dossier:$("#t-dossier").value,prio:$("#t-prio").value,when:"à l'instant",done:false});
+ toast("🔔 Notification envoyée à "+to.split(" ")[1]+" — tâche assignée");render()}
+function toggleUserMenu(ev){if(ev)ev.stopPropagation();userMenuOpen=!userMenuOpen;render()}
+document.addEventListener("click",e=>{if(userMenuOpen&&!e.target.closest(".userchip")){userMenuOpen=false;render()}});
+const CATALOGUE = [
+  {id:"mo", label:"Main-d'œuvre en heure", prix:100, unit:"h"},
+  {id:"depl", label:"Forfait déplacement", prix:65},
+  {id:"diag", label:"Diagnostic atelier", prix:45},
+  {id:"ecr-iph", label:"Remplacement écran iPhone", prix:129},
+  {id:"batt", label:"Remplacement batterie", prix:69},
+  {id:"ssd", label:"Migration SSD 1 To + clonage", prix:159},
+  {id:"nett", label:"Nettoyage interne + pâte thermique", prix:55},
+  {id:"virus", label:"Désinfection + mises à jour", prix:75},
+];
+const APPAREILS = {
+  "Téléphone":{"Apple":["iPhone 12","iPhone 13","iPhone 14","iPhone 15","iPhone 16"],"Samsung":["Galaxy A54","Galaxy S23","Galaxy S24"],"Xiaomi":["Redmi Note 12","Redmi Note 13"]},
+  "Ordinateur portable":{"HP":["ProBook 450 G8","ProBook 450 G10","EliteBook 840 G9","Pavilion 15"],"Lenovo":["ThinkPad T14 G3","IdeaPad 5"],"Dell":["Latitude 5530","Inspiron 15"],"Apple":["MacBook Air M2","MacBook Pro 14 M3"]},
+  "Ordinateur fixe":{"HP":["ProDesk 400 G7","Pavilion TP01"],"Dell":["OptiPlex 7010"],"Assemblé":["PC sur-mesure AMR"]},
+  "Tablette":{"Apple":["iPad 9","iPad Air 5"],"Samsung":["Galaxy Tab A9"]},
+  "TV / Multimédia":{"Samsung":["TV QLED 55\""],"LG":["TV OLED 48\""],"Sonos":["Beam Gen 2"]},
+  "Réseau":{"Ubiquiti":["UniFi Dream Machine"],"TP-Link":["Archer AX55"],"NEC":["Standard téléphonique SL2100"]},
+  "Autre":{"—":["Autre appareil"]}
+};
+let SEQ = 187;
+const now = d => new Date(d).toLocaleDateString("fr-FR",{day:"2-digit",month:"short"}) ;
+let DOSSIERS = [
+  {n:"AMR-2026-00181",code:"K7WM4PXD",client:"Martin BERGER",tel:"06 12 45 78 90",soc:"",statut:"pret",prio:"normale",tech:"FORESTI Hugo",mode:"facture",kind:"atelier",date:"2026-07-15",
+   app:[{t:"Ordinateur portable",m:"HP",mod:"ProBook 450 G8",sn:"5CD1234XYZ",acc:"Chargeur",mdp:"••••"}],
+   defauts:"Ne démarre plus, voyant charge clignote.",travaux:"Diagnostic carte mère + alimentation.",constats:"Connecteur DC HS, nappe OK.",fait:"Remplacement connecteur DC, tests charge complets.",
+   lignes:[{l:"Diagnostic atelier",q:1,p:45},{l:"Main-d'œuvre en heure",q:1,p:100},{l:"Connecteur DC ProBook",q:1,p:24}],
+   hist:[["2026-07-15 09:12","Dossier créé — fiche signée au comptoir — par FORESTI Hugo",1],["2026-07-15 14:30","Reçu → En diagnostic",1],["2026-07-16 10:05","En diagnostic → En réparation",1],["2026-07-17 16:44","En réparation → Contrôle qualité",0],["2026-07-18 09:20","Contrôle qualité → Prêt — client notifié (e-mail + WhatsApp patron)",1]],
+   msgs:[["client","Bonjour, avez-vous une idée du délai ? Merci","16 juil. 11:02"],["staff","Bonjour M. Berger, pièce reçue ce matin, votre PC sera prêt sous 48h. — Hugo","16 juil. 11:35"]]},
+  {n:"AMR-2026-00183",code:"P3RT8HWN",client:"Sophie KLEIN",tel:"06 98 32 11 07",soc:"Cabinet Klein & Associés",statut:"devis",prio:"haute",tech:"TURAN Tolgahan",mode:"devis",kind:"atelier",date:"2026-07-17",
+   app:[{t:"Téléphone",m:"Apple",mod:"iPhone 14",sn:"IMEI 353829…",acc:"Coque",mdp:"••••"}],
+   defauts:"Écran fissuré, tactile partiel.",travaux:"Remplacement écran.",constats:"Écran + châssis légèrement voilé.",fait:"",
+   lignes:[{l:"Remplacement écran iPhone",q:1,p:129}],
+   hist:[["2026-07-17 10:40","Dossier créé — fiche signée — par TURAN Tolgahan",1],["2026-07-17 15:10","Reçu → En diagnostic",1],["2026-07-18 09:00","Devis envoyé (129 € TTC) — en attente d'approbation",1]],
+   msgs:[]},
+  {n:"AMR-2026-00184",code:"M9XC2VLQ",client:"Restaurant Le Tilleul",tel:"03 88 55 20 14",soc:"SARL Le Tilleul",statut:"reparation",prio:"urgente",tech:"EL OUNASSE Anis",mode:"facture",kind:"sur_site",date:"2026-07-18",
+   app:[{t:"Réseau",m:"NEC",mod:"Standard téléphonique SL2100",sn:"—",acc:"—",mdp:"—"}],
+   defauts:"Lignes fixes muettes depuis l'orage.",travaux:"Intervention sur site — diagnostic standard + lignes.",constats:"Carte trunk HS.",fait:"Carte remplacée, reprogrammation en cours.",
+   lignes:[{l:"Forfait déplacement",q:1,p:65},{l:"Main-d'œuvre en heure",q:2,p:100},{l:"Carte trunk SL2100",q:1,p:210}],
+   hist:[["2026-07-18 08:15","Dossier créé (RDV sur site 14h) — par EL OUNASSE Anis",1],["2026-07-18 14:20","Reçu → En diagnostic (sur site)",1],["2026-07-18 15:05","En diagnostic → En réparation",1]],
+   msgs:[["client","C'est bon pour cet après-midi ? Nous ouvrons à 18h30.","18 juil. 09:12"],["staff","Oui, Anis sera sur place à 14h. — AMR","18 juil. 09:20"]]},
+  {n:"AMR-2026-00185",code:"D4FN7KSR",client:"Jeanne MULLER",tel:"07 61 48 25 33",soc:"",statut:"attente_piece",prio:"normale",tech:"TURAN Saadet",mode:"devis",kind:"atelier",date:"2026-07-18",
+   app:[{t:"Ordinateur portable",m:"Apple",mod:"MacBook Air M2",sn:"FVFH…",acc:"Chargeur, housse",mdp:"••••"}],
+   defauts:"Batterie gonflée.",travaux:"Remplacement batterie.",constats:"Batterie gonflée confirmé, trackpad contraint.",fait:"",
+   lignes:[{l:"Remplacement batterie",q:1,p:69},{l:"Batterie MacBook Air M2",q:1,p:135}],
+   hist:[["2026-07-18 11:30","Dossier créé — fiche signée",1],["2026-07-18 16:00","Devis approuvé par signature en ligne ✍️",1],["2026-07-19 09:15","Devis approuvé → En attente de pièce (batterie commandée)",1]],
+   msgs:[]},
+  {n:"AMR-2026-00186",code:"B8QZ5JTY",client:"Karim HADDAD",tel:"06 45 90 12 78",soc:"",statut:"clos",prio:"basse",tech:"FORESTI Hugo",mode:"garantie",kind:"atelier",date:"2026-07-10",
+   app:[{t:"Ordinateur fixe",m:"Assemblé",mod:"PC sur-mesure AMR",sn:"AMR-2025-CFG-88",acc:"Câble alim",mdp:"—"}],
+   defauts:"Écrans bleus aléatoires.",travaux:"Diagnostic sous garantie (PC monté par AMR en 2025).",constats:"Barrette RAM défectueuse.",fait:"RAM remplacée sous garantie, memtest 4h OK.",
+   lignes:[{l:"Prise en charge garantie",q:1,p:0}],
+   hist:[["2026-07-10 10:00","Dossier créé (garantie) — par FORESTI Hugo",1],["2026-07-11 17:30","Réparation terminée — par FORESTI Hugo",1],["2026-07-12 10:30","Restitué — signature retrait ✍️ — par TURAN Saadet",1],["2026-07-12 10:31","Restitué → Clos",0]],
+   msgs:[]},
+  {n:"AMR-2026-00187",code:"H2LK9WMF",client:"Cabinet BARTH Avocats",tel:"03 88 41 22 60",soc:"SCP Barth & Associés",statut:"diagnostic",prio:"haute",tech:"FORESTI Hugo",mode:"facture",kind:"atelier",date:"2026-07-20",prive:true,acces:["TURAN Tolgahan","FORESTI Hugo"],
+   app:[{t:"Ordinateur portable",m:"Dell",mod:"Latitude 5530",sn:"7Y2KQ33",acc:"Chargeur",mdp:"••••"}],
+   defauts:"Poste de direction — données sensibles, ne démarre plus.",travaux:"Récupération des données + remplacement disque.",constats:"SSD défaillant, sauvegarde d'urgence en cours.",fait:"",
+   lignes:[{l:"Diagnostic atelier",q:1,p:45},{l:"Migration SSD 1 To + clonage",q:1,p:159}],
+   hist:[["2026-07-20 17:05","Dossier créé 🔒 privé — par TURAN Tolgahan (accès : Tolgahan, Hugo)",0],["2026-07-21 09:30","Reçu → En diagnostic — par FORESTI Hugo",0]],
+   msgs:[]}
+];
+let RDVS = [
+  {h:"09:00",j:"Aujourd'hui",type:"Dépôt atelier",client:"Paul WEBER — iPhone 13, écran",tech:"TURAN Saadet"},
+  {h:"11:30",j:"Aujourd'hui",type:"Diagnostic",client:"Boulangerie ROTH — caisse ne démarre plus",tech:"FORESTI Hugo"},
+  {h:"14:00",j:"Aujourd'hui",type:"Sur site",client:"Restaurant Le Tilleul — standard NEC (dossier 00184)",tech:"EL OUNASSE Anis"},
+  {h:"10:00",j:"Demain",type:"Dépôt atelier",client:"Nadia BECK — MacBook lent",tech:"TURAN Tolgahan"},
+];
+
+/* ============ ÉTAT / OUTILS ============ */
+let view="dash", current=null, tab="app", filtreS="", filtreT="", q="";
+const $=s=>document.querySelector(s);
+const ICONS={
+ dash:'<rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="12" rx="1"/>',
+ folder:'<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+ fileplus:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/>',
+ cal:'<path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>',
+ eye:'<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+ sliders:'<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+ bell:'<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>',
+ search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ wrench:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+ check:'<path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/>',
+ send:'<path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/>',
+ euro:'<path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2"/>',
+ plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+ lock:'<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+ msg:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+ moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>',
+ panel:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/>'
+};
+const svg=(n,s=16)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+function isDark(){const t=document.documentElement.dataset.theme;return t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
+function toggleTheme(){document.documentElement.dataset.theme=isDark()?"light":"dark";try{localStorage.setItem("amrsav_theme",document.documentElement.dataset.theme)}catch(e){};render()}
+let sideCollapsed=false;
+function toggleSide(){sideCollapsed=!sideCollapsed;document.querySelector(".side").classList.toggle("collapsed",sideCollapsed);try{localStorage.setItem("amrsav_side",sideCollapsed?"1":"0")}catch(e){}}
+function countUp(){document.querySelectorAll("[data-count]").forEach(el=>{const target=+el.dataset.count,suf=el.dataset.suf||"";const t0=performance.now(),dur=650;function step(t){const p=Math.min(1,(t-t0)/dur),v=Math.round(target*(1-Math.pow(1-p,3)));el.textContent=v.toLocaleString("fr-FR")+suf;if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)})}
+const euro=n=>n.toLocaleString("fr-FR",{style:"currency",currency:"EUR",minimumFractionDigits:0});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;$("#toasts").appendChild(t);setTimeout(()=>t.remove(),3400)}
+function chip(s){const st=STATUTS[s];const col=(isDark()&&st.cd)||st.c;return `<span class="chip" style="background:${col}1E;color:${col}">${st.l}</span>`}
+function total(d){return d.lignes.reduce((a,l)=>a+l.q*l.p,0)}
+function whatsapp(d,extra){
+  const st=STATUTS[d.statut];
+  const txt=`🔧 ${d.n} → ${st.l.toUpperCase()}\n👤 ${d.client}${d.soc?` (${d.soc})`:""}\n📱 ${d.app[0].m} ${d.app[0].mod}${extra?`\n${extra}`:""}\n🔗 sav.amr.fr/d/${d.n}`;
+  $("#modal").innerHTML=`<div class="overlay" onclick="if(event.target===this)closeModal()">
+    <div class="wa"><div class="wahead"><span class="ava">🔧</span> AMR SAV — notifications<br><small style="font-weight:400;opacity:.8">vers le WhatsApp de Tolgahan</small></div>
+    <div class="wabody"><div class="bubble">${esc(txt)}<span class="wt">${new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})} ✓✓</span></div></div>
+    <button class="waclose" onclick="closeModal()">Fermer l'aperçu</button></div></div>`;
+}
+function closeModal(){$("#modal").innerHTML=""}
+
+/* ============ NAVIGATION ============ */
+const NAV=[["dash","dash","Tableau de bord"],["dossiers","folder","Dossiers SAV"],["fiche","fileplus","Nouvelle fiche"],["rdv","cal","Rendez-vous"],["notifs","bell","Notifications"],["public","eye","Vue client"],["reglages","sliders","Statuts"]];
+function renderNav(){$("#nav").innerHTML=NAV.map(([id,ic,l])=>`<button class="${view===id?"active":""}" title="${l}" onclick="go('${id}')">${svg(ic,17)}<span class="lbl">${l}</span></button>`).join("")}
+function go(v){view=v;current=null;render()}
+
+/* ============ VUES ============ */
+function render(){
+  renderNav();
+  const M=$("#main");
+  const banner=`<div class="appbar">
+    <button class="iconbtn" id="sidetoggle" title="Réduire le menu" onclick="toggleSide()">${svg("panel",16)}</button>
+    <div class="search"><span class="sic">${svg("search",15)}</span><input placeholder="Rechercher un dossier, un client…" onkeydown="if(event.key==='Enter'){q=this.value;view='dossiers';current=null;render()}"></div>
+    <span class="demo-tag">DÉMO — DONNÉES FICTIVES</span>
+    <button class="iconbtn bell" title="Notifications" style="position:relative" onclick="go('notifs')">${svg("bell",16)}${TASKS.filter(t=>!t.done).length?`<span class="countb">${TASKS.filter(t=>!t.done).length}</span>`:""}</button>
+    <div class="userchip" onclick="toggleUserMenu(event)"><span class="ava" style="background:linear-gradient(135deg,#F9942F,#EF7814)">TT</span><div><b>TURAN Tolgahan</b><span>Administrateur</span></div>
+      ${userMenuOpen?`<div class="umenu" onclick="event.stopPropagation()">
+        <div class="uhead"><b>TURAN Tolgahan</b><span>Administrateur — tolgahan@amr.fr</span></div>
+        <button onclick="userMenuOpen=false;go('notifs')">${svg("bell",15)} Notifications ${TASKS.filter(t=>!t.done).length?`(${TASKS.filter(t=>!t.done).length})`:""}</button>
+        <button onclick="userMenuOpen=false;toggleTheme()">${svg(isDark()?"sun":"moon",15)} ${isDark()?"Mode clair":"Mode sombre"}</button>
+        <div class="usep"></div>
+        <button onclick="userMenuOpen=false;toast('En version finale : profil, MFA, préférences de notification')">${svg("sliders",15)} Mon compte</button>
+        <button onclick="userMenuOpen=false;toast('En version finale : bascule entre comptes (multi-salariés)')">${svg("panel",15)} Changer de compte</button>
+        <div class="usep"></div>
+        <button class="udanger" onclick="userMenuOpen=false;toast('Déconnexion (démo)')">${svg("lock",15)} Se déconnecter</button>
+      </div>`:""}
+    </div>
+  </div>`;
+  if(view==="dash"){
+    const c=s=>DOSSIERS.filter(d=>d.statut===s).length;
+    const enCours=DOSSIERS.filter(d=>!["clos","annule","livre"].includes(d.statut)).length;
+    M.innerHTML=banner+`
+    <div class="topbar"><div><h1>Vue d'ensemble</h1><div class="sub">L'atelier en un coup d'œil — lundi 21 juillet 2026, Ostwald</div></div>
+      <button class="btn primary" onclick="go('fiche')">${svg("plus",15)} Nouvelle fiche</button></div>
+    <div class="grid stats">
+      <div class="card stat hero"><span class="ic">${svg("wrench",17)}</span><b data-count="${enCours}">0</b><span>Dossiers en cours</span><span class="trend">dont ${DOSSIERS.filter(d=>d.prio==="urgente").length} urgent</span></div>
+      <div class="card stat"><span class="ic" style="background:var(--ok-soft);color:var(--ok)">${svg("check",17)}</span><b data-count="${c("pret")}">0</b><span>Prêts — à retirer</span><span class="trend">clients notifiés</span></div>
+      <div class="card stat"><span class="ic" style="background:var(--tint);color:var(--structure)">${svg("send",16)}</span><b data-count="${c("devis")}">0</b><span>Devis en attente</span></div>
+      <div class="card stat"><span class="ic" style="background:var(--hover);color:var(--muted)">${svg("euro",17)}</span><b data-count="385" data-suf=" €">0</b><span>Encaissé aujourd'hui</span><svg class="spark" viewBox="0 0 100 26" preserveAspectRatio="none"><defs><linearGradient id="sparkgrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#005EAB"/><stop offset=".6" stop-color="#EF7814"/><stop offset="1" stop-color="#F9942F"/></linearGradient><linearGradient id="sparkfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EF7814" stop-opacity=".22"/><stop offset="1" stop-color="#EF7814" stop-opacity="0"/></linearGradient></defs><polygon points="0,20 14,16 28,18 42,11 56,14 72,6 86,10 100,7 100,26 0,26" fill="url(#sparkfill)"/><polyline points="0,20 14,16 28,18 42,11 56,14 72,6 86,10 100,7"/><circle cx="100" cy="7" r="2.6"/></svg></div>
+    </div>
+    <div class="grid two-col" style="margin-top:1rem">
+      <div class="card"><h3>Derniers dossiers</h3><div class="tablewrap" style="border:0;box-shadow:none">
+        <table><thead><tr><th>N°</th><th>Client</th><th>Appareil</th><th>Statut</th></tr></thead><tbody>
+        ${DOSSIERS.slice().reverse().slice(0,5).map(d=>`<tr onclick="openD('${d.n}')"><td class="num">${d.n}</td><td>${esc(d.client)}</td><td>${esc(d.app[0].m+" "+d.app[0].mod)}</td><td>${chip(d.statut)}</td></tr>`).join("")}
+        </tbody></table></div></div>
+      <div class="card"><h3>Rendez-vous du jour</h3>
+        ${RDVS.filter(r=>r.j==="Aujourd'hui").map(r=>`<div class="rdv"><span class="h">${r.h}</span><div><div class="type">${r.type}</div>${esc(r.client)}<div class="kv">${r.tech}</div></div></div>`).join("")}
+        <button class="btn small" onclick="go('rdv')">Voir l'agenda →</button></div>
+    </div>
+    <div class="card" style="margin-top:1rem">
+      <h3>Activité des 7 derniers jours <span class="kv" style="font-weight:400">— dossiers ouverts</span></h3>
+      <div class="bars">${[[38,"lun",4],[55,"mar",6],[42,"mer",5],[70,"jeu",8],[64,"ven",7],[26,"sam",3],[12,"dim",1]].map(([v,j,n],i)=>`<div class="barcol" title="${n} dossier${n>1?"s":""}"><div class="bar" style="--h:${v}%;animation-delay:${.2+i*.08}s"></div><span>${j}</span></div>`).join("")}</div>
+    </div>`;
+  }
+  else if(view==="dossiers"){
+    let list=DOSSIERS.filter(d=>(!d.prive||d.acces.includes(USER))&&(!filtreS||d.statut===filtreS)&&(!filtreT||d.tech===filtreT)&&(!q||(d.n+d.client+d.app[0].mod+(d.soc||"")).toLowerCase().includes(q.toLowerCase())));
+    M.innerHTML=banner+`
+    <div class="topbar"><h1>Dossiers SAV</h1><button class="btn primary" onclick="go('fiche')">${svg("plus",15)} Nouvelle fiche</button></div>
+    <div class="filters">
+      <input placeholder="🔎 N°, client, appareil…" value="${esc(q)}" oninput="q=this.value;render()">
+      <select onchange="filtreS=this.value;render()"><option value="">Tous les statuts</option>${Object.entries(STATUTS).map(([k,s])=>`<option value="${k}" ${filtreS===k?"selected":""}>${s.l}</option>`).join("")}</select>
+      <select onchange="filtreT=this.value;render()"><option value="">Tous les techniciens</option>${TECHS.map(t=>`<option ${filtreT===t?"selected":""}>${t}</option>`).join("")}</select>
+    </div>
+    <div class="tablewrap"><table><thead><tr><th>N° de fiche</th><th>Client</th><th>Appareil</th><th>Technicien</th><th>Priorité</th><th>Total</th><th>Statut</th></tr></thead><tbody>
+    ${list.map(d=>`<tr onclick="openD('${d.n}')">
+      <td class="num">${d.prive?svg("lock",12)+" ":""}${d.n}</td><td>${esc(d.client)}${d.soc?`<div class="kv">${esc(d.soc)}</div>`:""}</td>
+      <td>${esc(d.app[0].m+" "+d.app[0].mod)}${d.app.length>1?` <span class="kv">+${d.app.length-1}</span>`:""}</td>
+      <td>${d.tech.split(" ")[1]||d.tech}</td><td><span class="prio ${d.prio}">${d.prio}</span></td>
+      <td>${euro(total(d))}</td><td>${chip(d.statut)}</td></tr>`).join("")||`<tr><td colspan="7" style="color:var(--muted)">Aucun dossier ne correspond.</td></tr>`}
+    </tbody></table></div>`;
+  }
+  else if(view==="detail"&&current){ renderDetail(M,banner) }
+  else if(view==="fiche"){ renderFiche(M,banner) }
+  else if(view==="rdv"){
+    M.innerHTML=banner+`<div class="topbar"><h1>Rendez-vous</h1><button class="btn" onclick="toast('En version finale : prise de RDV en ligne par vos clients, avec rappel automatique J-1')">${svg("plus",15)} Nouveau RDV</button></div>
+    ${["Aujourd'hui","Demain"].map(j=>`<h3 style="margin:.6rem 0">${j}</h3>${RDVS.filter(r=>r.j===j).map(r=>`<div class="rdv"><span class="h">${r.h}</span><div><div class="type">${r.type}</div>${esc(r.client)}<div class="kv">${r.tech}</div></div><button class="btn small" style="margin-left:auto" onclick="toast('En version finale : conversion du RDV en dossier pré-rempli en un clic ⚡')">→ Dossier</button></div>`).join("")}`).join("")}
+    <p class="kv" style="margin-top:1rem">💡 En version finale : vos clients prennent RDV seuls sur <b>sav.amr.fr</b> (dépôt, diagnostic ou intervention sur site), avec confirmation e-mail et rappel automatique la veille.</p>`;
+  }
+  else if(view==="public"){
+    const d=DOSSIERS.find(x=>x.statut==="pret")||DOSSIERS[0];
+    M.innerHTML=banner+`<div class="topbar"><h1>Ce que voit votre client</h1><div class="sub">Page de suivi publique — sans compte, via le QR de sa fiche</div></div>
+    <div class="phoneframe"><div class="pubhead"><div style="opacity:.8;font-size:.75rem">AMR Informatique — suivi de réparation</div>
+      <div class="n">${d.n}</div><div style="font-size:.8rem;opacity:.9">${esc(d.app[0].m+" "+d.app[0].mod)}</div></div>
+      <div class="pubbody"><span class="statebig" style="background:${((isDark()&&STATUTS[d.statut].cd)||STATUTS[d.statut].c)}22;color:${(isDark()&&STATUTS[d.statut].cd)||STATUTS[d.statut].c}">${STATUTS[d.statut].l}</span>
+      <ul class="timeline" style="margin-top:.8rem">${d.hist.filter(h=>h[2]).map(h=>`<li class="pub"><span class="t">${h[0]}</span><br>${esc(h[1])}</li>`).join("")}</ul>
+      <button class="btn" style="width:100%" onclick="toast('En version finale : messagerie directe avec l\\'atelier')">${svg("msg",15)} Écrire à l'atelier</button>
+      <p class="kv" style="text-align:center;margin:.7rem 0 0">AMR Informatique · 38 rue du Général Leclerc, Ostwald<br>03 88 67 98 00</p></div></div>`;
+  }
+  else if(view==="notifs"){
+    const list=TASKS.filter(t=>taskFilter==="toutes"?true:taskFilter==="afaire"?!t.done:t.done);
+    const open=TASKS.filter(t=>!t.done).length;
+    M.innerHTML=banner+`
+    <div class="topbar"><div><h1>Notifications & tâches</h1><div class="sub">${open} tâche${open>1?"s":""} en cours — assignez à un collègue, il est notifié aussitôt</div></div></div>
+    <div class="grid two-col">
+      <div class="card">
+        <h3>Tâches de l'équipe</h3>
+        <div class="tfilters">${[["afaire","À faire"],["faites","Faites"],["toutes","Toutes"]].map(([k,l])=>`<button class="${taskFilter===k?"on":""}" onclick="taskFilter='${k}';render()">${l}</button>`).join("")}</div>
+        ${list.map(t=>`<div class="task ${t.done?"done":""}">
+          <input type="checkbox" ${t.done?"checked":""} onchange="toggleTask(${t.id})" title="Marquer ${t.done?"à refaire":"fait"}">
+          <div><span class="ttxt">${esc(t.txt)}</span><span class="kv">${esc(t.from.split(" ")[1]||t.from)} → <b>${esc(t.to.split(" ")[1]||t.to)}</b>${t.dossier?` · <span class="num" style="font-size:.75rem">${t.dossier}</span>`:""} · ${t.when}</span></div>
+          <span class="tprio ${t.prio}">${t.prio}</span></div>`).join("")||`<p class="kv">Rien ici.</p>`}
+      </div>
+      <div class="card">
+        <h3>Assigner une tâche</h3>
+        <div class="field" style="margin-bottom:.7rem"><label>À qui</label><select id="t-to">${TECHS.filter(t=>t!==USER).map(t=>`<option>${t}</option>`).join("")}</select></div>
+        <div class="field" style="margin-bottom:.7rem"><label>Tâche *</label><input id="t-txt" placeholder="ex. Rappeler Mme Muller pour la batterie"></div>
+        <div class="field" style="margin-bottom:.7rem"><label>Dossier lié (optionnel)</label><select id="t-dossier"><option value="">—</option>${DOSSIERS.filter(d=>!d.prive||d.acces.includes(USER)).map(d=>`<option>${d.n}</option>`).join("")}</select></div>
+        <div class="field" style="margin-bottom:.9rem"><label>Priorité</label><select id="t-prio"><option>normale</option><option>haute</option><option>urgente</option></select></div>
+        <button class="btn primary" onclick="assignTask()">${svg("send",15)} Assigner & notifier</button>
+        <p class="kv" style="margin-top:.7rem">Le collègue reçoit la notification dans sa cloche (+ e-mail/push selon ses préférences).</p>
+      </div>
+    </div>`;
+  }
+  else if(view==="reglages"){
+    M.innerHTML=banner+`<div class="topbar"><h1>Statuts personnalisables</h1><div class="sub">Libellés, couleurs, notifications — modifiables sans développeur</div></div>
+    <div class="tablewrap"><table><thead><tr><th>Statut</th><th>Couleur</th><th>Visible client</th><th>Notifier client</th><th>Notifier Tolgahan (WhatsApp)</th></tr></thead><tbody>
+    ${Object.entries(STATUTS).map(([k,s])=>`<tr onclick="toast('En version finale : édition complète du statut ✏️')"><td><b>${s.l}</b></td><td><span class="chip" style="background:${((isDark()&&s.cd)||s.c)}1E;color:${(isDark()&&s.cd)||s.c}">⬤ ${s.c}</span></td>
+      <td>${["clos","annule"].includes(k)?"—":"✔"}</td><td>${["pret","devis","livre"].includes(k)?"✔ e-mail":"selon réglage"}</td><td>${["pret","devis_ok","devis_ko","recu"].includes(k)?"✔":"—"}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  }
+  document.getElementById("brandlogo").src=isDark()?LOGO_DARK:LOGO_LIGHT;
+  window.scrollTo(0,0);
+  const MM=$("#main");MM.classList.remove("anim");void MM.offsetWidth;MM.classList.add("anim");
+  if(view==="dash")countUp();
+}
+
+/* ============ DÉTAIL ============ */
+function openD(n){current=DOSSIERS.find(d=>d.n===n);view="detail";tab="app";render()}
+function renderDetail(M,banner){
+  const d=current,st=STATUTS[d.statut];
+  M.innerHTML=banner+`
+  <button class="backlink" onclick="go('dossiers')">← Retour aux dossiers</button>
+  <div class="card">
+    <div class="dethead">
+      <div><span class="num" style="font-size:1.15rem">${d.n}</span> ${chip(d.statut)} <span class="prio ${d.prio}">${d.prio}</span>
+        <div class="who">👤 ${esc(d.client)}${d.soc?` · ${esc(d.soc)}`:""} · 📞 ${d.tel} · 🔧 ${d.tech} · ${d.kind==="sur_site"?"📍 Sur site":"🏠 Atelier"} · dépôt le ${now(d.date)} · mode <b>${d.mode}</b>${d.prive?' · <b style="color:var(--warn)">'+svg("lock",12)+' Privé — accès : '+d.acces.map(a=>a.split(" ")[1]||a).join(", ")+'</b>':""}</div></div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        ${st.next.length?`<select id="chgS" class="btn">${st.next.map(s=>`<option value="${s}">→ ${STATUTS[s].l}</option>`).join("")}</select>
+        <button class="btn primary" onclick="chgStatut()">Changer le statut</button>`:""}
+        <button class="btn" onclick="toast('Fiche de prise en charge PDF générée (QR + signature)')">${svg("file",15)} Fiche PDF</button>
+        <button class="btn" onclick="toast('En version finale : devis / facture générés depuis les prestations')">${svg("euro",15)} Devis / Facture</button>
+      </div>
+    </div>
+    <div class="tabs">
+      ${[["app","Appareils"],["prest","Prestations ("+euro(total(d))+")"],["hist","Historique"],["msg","Messages ("+d.msgs.length+")"]].map(([k,l])=>`<button class="${tab===k?"active":""}" onclick="tab='${k}';render()">${l}</button>`).join("")}
+    </div>
+    <div id="tabc">${tabContent(d)}</div>
+  </div>`;
+}
+function tabContent(d){
+  if(tab==="app")return d.app.map(a=>`<div class="devicebox"><b>${esc(a.t)} — ${esc(a.m)} ${esc(a.mod)}</b>
+    <span class="kv">N°/IMEI : ${esc(a.sn)} · Accessoires : ${esc(a.acc)} · Mot de passe : ${esc(a.mdp)} 🔒 (chiffré)</span></div>`).join("")
+    +`<div class="formgrid"><div><b>Défauts signalés</b><p class="kv">${esc(d.defauts)}</p><b>Défauts constatés</b><p class="kv">${esc(d.constats||"—")}</p></div>
+    <div><b>Travail à effectuer</b><p class="kv">${esc(d.travaux)}</p><b>Travail effectué</b><p class="kv">${esc(d.fait||"—")}</p></div></div>`;
+  if(tab==="prest")return `<div class="tablewrap" style="box-shadow:none"><table class="lines"><thead><tr><th>Désignation</th><th>Qté</th><th>PU HT</th><th>Total HT</th></tr></thead>
+    <tbody>${d.lignes.map(l=>`<tr><td>${esc(l.l)}</td><td>${l.q}</td><td>${euro(l.p)}</td><td>${euro(l.q*l.p)}</td></tr>`).join("")}
+    <tr><td colspan="3" style="text-align:right"><b>Total HT</b></td><td><b>${euro(total(d))}</b></td></tr></tbody></table></div>`;
+  if(tab==="hist")return `<ul class="timeline">${d.hist.slice().reverse().map(h=>`<li class="${h[2]?"pub":""}"><span class="t">${h[0]}</span> ${h[2]?'<span class="tagpub">visible client</span>':""}<br>${esc(h[1])}</li>`).join("")}</ul>`;
+  if(tab==="msg")return (d.msgs.map(m=>`<div class="msg ${m[0]}">${esc(m[1])}<span class="t">${m[0]==="client"?"Client":"AMR"} · ${m[2]}</span></div>`).join("")||`<p class="kv">Aucun message.</p>`)
+    +`<div style="display:flex;gap:.5rem;margin-top:.6rem"><input id="newmsg" placeholder="Répondre au client…" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;background:var(--panel)">
+    <button class="btn primary" onclick="sendMsg()">Envoyer</button></div>`;
+}
+function chgStatut(){
+  const d=current,to=$("#chgS").value;
+  d.statut=to;
+  const lbl=STATUTS[to].l;
+  d.hist.push([new Date().toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"}),`Statut → ${lbl} — par ${USER}`,1]);
+  toast(`Statut changé : ${lbl} — client notifié par e-mail ✔`);
+  if(["pret","devis_ok","devis_ko","recu","reparation"].includes(to)) whatsapp(d, to==="pret"?"✅ Appareil prêt — client notifié":"");
+  render();
+}
+function sendMsg(){const v=$("#newmsg").value.trim();if(!v)return;current.msgs.push(["staff",v,"à l'instant"]);toast("Message envoyé — le client est notifié 💬");render()}
+
+/* ============ FICHE (formulaire + signature) ============ */
+let sigOK=false;
+function renderFiche(M,banner){
+  sigOK=false;
+  M.innerHTML=banner+`
+  <div class="topbar"><h1>📝 Fiche de prise en charge</h1><div class="sub">Identique à votre fiche papier — mais elle crée le dossier toute seule</div></div>
+  <form onsubmit="return creerDossier(event)">
+  <fieldset><legend>Identification (automatique)</legend>
+    <p style="margin:.2rem 0">Créée par : <b>${USER}</b> — compte <b>${ROLE}</b>. Chaque salarié (admin, technicien, SAV, accueil) a son compte : la fiche et <b>chaque modification</b> portent automatiquement son nom — plus rien à cocher.</p>
+  </fieldset>
+  <fieldset><legend>Confidentialité <span class="kv">(option visible car vous êtes ${ROLE})</span></legend>
+    <label><input type="checkbox" id="f-prive" onchange="document.getElementById('privlist').style.display=this.checked?'flex':'none'"> Dossier privé — accès restreint au groupe choisi</label>
+    <div id="privlist" class="techs" style="display:none;margin-top:.5rem">
+      ${TECHS.map(t=>`<label><input type="checkbox" class="f-acc" value="${t}" ${t===USER?"checked disabled":""}>${t}${t===USER?" (vous)":""}</label>`).join("")}
+    </div>
+  </fieldset>
+  <fieldset><legend>Client</legend><div class="formgrid">
+    <div class="field"><label>NOM Prénom *</label><input id="f-nom" required placeholder="ex. Martin BERGER"></div>
+    <div class="field"><label>Téléphone *</label><input id="f-tel" required placeholder="06 …"></div>
+    <div class="field"><label>Société (pro)</label><input id="f-soc" placeholder="optionnel"></div>
+    <div class="field"><label>E-mail</label><input id="f-mail" type="email" placeholder="pour le suivi en ligne"></div>
+  </div></fieldset>
+  <fieldset><legend>Appareil</legend><div class="formgrid">
+    <div class="field"><label>Type *</label><select id="f-type" onchange="majMarques()">${Object.keys(APPAREILS).map(t=>`<option>${t}</option>`).join("")}</select></div>
+    <div class="field"><label>Marque *</label><select id="f-marque" onchange="majModeles()"></select></div>
+    <div class="field"><label>Modèle *</label><select id="f-mod"></select></div>
+    <div class="field"><label>N° de série / IMEI</label><input id="f-sn" placeholder="scan possible en version finale"></div>
+    <div class="field"><label>Accessoires</label><input id="f-acc" placeholder="chargeur, housse…"></div>
+    <div class="field"><label>Mot de passe appareil 🔒</label><input id="f-mdp" placeholder="stocké chiffré"></div>
+  </div></fieldset>
+  <fieldset><legend>Demande</legend><div class="formgrid">
+    <div class="field"><label>Défauts signalés *</label><textarea id="f-def" required placeholder="décrits par le client"></textarea></div>
+    <div class="field"><label>Travail à effectuer</label><textarea id="f-trav"></textarea></div>
+  </div>
+  <div style="display:flex;gap:1.4rem;flex-wrap:wrap;margin-top:.5rem">
+    <label><input type="radio" name="mode" value="facture" checked> Facture</label>
+    <label><input type="radio" name="mode" value="devis"> Devis</label>
+    <label><input type="radio" name="mode" value="garantie"> Garantie</label>
+    <label style="margin-left:auto"><input type="checkbox" id="f-site"> Intervention sur site (+ forfait déplacement)</label>
+  </div></fieldset>
+  <fieldset><legend>Prestations (catalogue — cochez)</legend><div class="svc">
+    ${CATALOGUE.map(s=>`<div class="svcrow"><label style="flex:1"><input type="checkbox" class="f-svc" value="${s.id}" onchange="this.closest('.svcrow').querySelector('.f-prix').disabled=!this.checked">${s.label}</label><input type="number" class="f-prix" value="${s.prix}" min="0" step="1" disabled style="width:5.5em;border:1px solid var(--border);border-radius:6px;padding:.25rem .4rem;text-align:right;background:var(--panel)"><span class="price">€ HT${s.unit?" / "+s.unit:""} · modifiable</span></div>`).join("")}
+  </div></fieldset>
+  <fieldset><legend>Signature du client — prise en charge</legend>
+    <canvas class="sig" id="sig" width="900" height="220"></canvas>
+    <p class="sighint">Le client signe au doigt ou au stylet — la signature est horodatée et scellée avec la fiche (valeur de preuve). <button type="button" class="btn small" onclick="clearSig()">Effacer</button></p>
+  </fieldset>
+  <div style="display:flex;gap:.7rem;align-items:center">
+    <button class="btn primary" style="font-size:1rem;padding:.7rem 1.4rem">${svg("check",16)} Créer le dossier</button>
+    <span class="kv">→ n° attribué, fiche PDF + QR, client et patron notifiés</span>
+  </div></form>`;
+  majMarques(); initSig();
+}
+function majMarques(){const t=$("#f-type").value;$("#f-marque").innerHTML=Object.keys(APPAREILS[t]).map(m=>`<option>${m}</option>`).join("");majModeles()}
+function majModeles(){const t=$("#f-type").value,m=$("#f-marque").value;$("#f-mod").innerHTML=APPAREILS[t][m].map(x=>`<option>${x}</option>`).join("")}
+function initSig(){
+  const c=$("#sig"),x=c.getContext("2d");let draw=false,px=0,py=0;
+  x.lineWidth=2.2;x.lineCap="round";x.strokeStyle=getComputedStyle(document.body).color;
+  const pos=e=>{const r=c.getBoundingClientRect();return[(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]};
+  c.onpointerdown=e=>{draw=true;[px,py]=pos(e);c.setPointerCapture(e.pointerId)};
+  c.onpointermove=e=>{if(!draw)return;const[nx,ny]=pos(e);x.beginPath();x.moveTo(px,py);x.lineTo(nx,ny);x.stroke();[px,py]=[nx,ny];sigOK=true};
+  c.onpointerup=()=>draw=false;
+}
+function clearSig(){const c=$("#sig");c.getContext("2d").clearRect(0,0,c.width,c.height);sigOK=false}
+function creerDossier(e){
+  e.preventDefault();
+  if(!sigOK){toast("✍️ Faites signer le client avant de créer le dossier");return false}
+  SEQ++;
+  const num=`AMR-2026-00${SEQ}`;
+  const svcs=[...document.querySelectorAll(".f-svc:checked")].map(cb=>{const s=CATALOGUE.find(x=>x.id===cb.value);const pi=cb.closest(".svcrow").querySelector(".f-prix");return {...s,prix:parseFloat(pi.value)||s.prix}});
+  if($("#f-site").checked&&!svcs.some(s=>s.id==="depl"))svcs.push(CATALOGUE[1]);
+  const d={n:num,code:Math.random().toString(36).slice(2,10).toUpperCase(),client:$("#f-nom").value,tel:$("#f-tel").value,soc:$("#f-soc").value,
+    statut:"recu",prio:"normale",tech:USER,mode:document.querySelector("[name=mode]:checked").value,prive:document.getElementById("f-prive").checked,acces:[...document.querySelectorAll(".f-acc:checked")].map(c=>c.value),
+    kind:$("#f-site").checked?"sur_site":"atelier",date:new Date().toISOString().slice(0,10),
+    app:[{t:$("#f-type").value,m:$("#f-marque").value,mod:$("#f-mod").value,sn:$("#f-sn").value||"—",acc:$("#f-acc").value||"—",mdp:$("#f-mdp").value?"••••":"—"}],
+    defauts:$("#f-def").value,travaux:$("#f-trav").value,constats:"",fait:"",
+    lignes:svcs.map(s=>({l:s.label,q:1,p:s.prix})),
+    hist:[[new Date().toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"}),"Dossier créé — fiche signée ✍️ (preuve horodatée) — par "+USER,1]],msgs:[]};
+  DOSSIERS.push(d);
+  toast(`✅ Dossier ${num} créé — fiche PDF générée, e-mail envoyé au client`);
+  whatsapp(d,"🆕 Nouvelle prise en charge");
+  openD(num);
+  return false;
+}
+
+/* ============ INIT ============ */
+try{const t=localStorage.getItem("amrsav_theme");if(t)document.documentElement.dataset.theme=t;
+if(localStorage.getItem("amrsav_side")==="1"){sideCollapsed=true;document.querySelector(".side").classList.add("collapsed")}}catch(e){}
+render();
+</script>
