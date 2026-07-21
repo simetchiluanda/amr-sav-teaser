@@ -479,14 +479,23 @@ function assignTask(){const to=$("#t-to").value,txt=$("#t-txt").value.trim();if(
 function toggleUserMenu(ev){if(ev)ev.stopPropagation();userMenuOpen=!userMenuOpen;render()}
 document.addEventListener("click",e=>{if(userMenuOpen&&!e.target.closest(".userchip")){userMenuOpen=false;render()}});
 const CATALOGUE = [
-  {id:"mo", label:"Main-d'œuvre en heure", prix:100, unit:"h"},
-  {id:"depl", label:"Forfait déplacement", prix:65},
-  {id:"diag", label:"Diagnostic atelier", prix:45},
-  {id:"ecr-iph", label:"Remplacement écran iPhone", prix:129},
-  {id:"batt", label:"Remplacement batterie", prix:69},
-  {id:"ssd", label:"Migration SSD 1 To + clonage", prix:159},
-  {id:"nett", label:"Nettoyage interne + pâte thermique", prix:55},
-  {id:"virus", label:"Désinfection + mises à jour", prix:75},
+  {id:"mo", label:"Main-d'œuvre en heure", prix:100, unit:"h", cats:"*"},
+  {id:"depl", label:"Forfait déplacement", prix:65, cats:"*"},
+  {id:"diag", label:"Diagnostic atelier", prix:45, cats:"*"},
+  {id:"ecr-tel", label:"Remplacement écran", prix:129, cats:["Téléphone","Tablette"]},
+  {id:"batt-tel", label:"Remplacement batterie", prix:69, cats:["Téléphone","Tablette"]},
+  {id:"chg", label:"Connecteur de charge", prix:59, cats:["Téléphone","Tablette"]},
+  {id:"desox", label:"Désoxydation (contact liquide)", prix:49, cats:["Téléphone"]},
+  {id:"ecr-pc", label:"Remplacement dalle écran", prix:119, cats:["Ordinateur portable"]},
+  {id:"clav", label:"Remplacement clavier", prix:79, cats:["Ordinateur portable"]},
+  {id:"batt-pc", label:"Remplacement batterie", prix:89, cats:["Ordinateur portable"]},
+  {id:"ssd", label:"Migration SSD 1 To + clonage", prix:159, cats:["Ordinateur portable","Ordinateur fixe"]},
+  {id:"nett", label:"Nettoyage interne + pâte thermique", prix:55, cats:["Ordinateur portable","Ordinateur fixe"]},
+  {id:"virus", label:"Désinfection + mises à jour", prix:75, cats:["Ordinateur portable","Ordinateur fixe"]},
+  {id:"alim", label:"Remplacement alimentation", prix:69, cats:["Ordinateur fixe"]},
+  {id:"tv-diag", label:"Diagnostic dalle / rétroéclairage", prix:49, cats:["TV / Multimédia"]},
+  {id:"tv-alim", label:"Carte d'alimentation TV", prix:89, cats:["TV / Multimédia"]},
+  {id:"net-conf", label:"Configuration équipement réseau", prix:85, cats:["Réseau"]},
 ];
 const APPAREILS = {
   "Téléphone":{"Apple":["iPhone 12","iPhone 13","iPhone 14","iPhone 15","iPhone 16"],"Samsung":["Galaxy A54","Galaxy S23","Galaxy S24"],"Xiaomi":["Redmi Note 12","Redmi Note 13"]},
@@ -801,9 +810,8 @@ function renderFiche(M,banner){
     <label><input type="radio" name="mode" value="garantie"> Garantie</label>
     <label style="margin-left:auto"><input type="checkbox" id="f-site"> Intervention sur site (+ forfait déplacement)</label>
   </div></fieldset>
-  <fieldset><legend>Prestations (catalogue — cochez)</legend><div class="svc">
-    ${CATALOGUE.map(s=>`<div class="svcrow"><label style="flex:1"><input type="checkbox" class="f-svc" value="${s.id}" onchange="this.closest('.svcrow').querySelector('.f-prix').disabled=!this.checked">${s.label}</label><input type="number" class="f-prix" value="${s.prix}" min="0" step="1" disabled style="width:5.5em;border:1px solid var(--border);border-radius:6px;padding:.25rem .4rem;text-align:right;background:var(--panel)"><span class="price">€ HT${s.unit?" / "+s.unit:""} · modifiable</span></div>`).join("")}
-  </div></fieldset>
+  <fieldset><legend id="svclegend">Prestations compatibles</legend><div class="svc" id="svclist"></div>
+  <p class="kv" style="margin:.5rem 0 0">La liste s'adapte au type d'appareil choisi — une migration SSD ne sera jamais proposée pour un iPhone.</p></fieldset>
   <fieldset><legend>Signature du client — prise en charge</legend>
     <canvas class="sig" id="sig" width="900" height="220"></canvas>
     <p class="sighint">Le client signe au doigt ou au stylet — la signature est horodatée et scellée avec la fiche (valeur de preuve). <button type="button" class="btn small" onclick="clearSig()">Effacer</button></p>
@@ -814,7 +822,10 @@ function renderFiche(M,banner){
   </div></form>`;
   majMarques(); initSig();
 }
-function majMarques(){const t=$("#f-type").value;$("#f-marque").innerHTML=Object.keys(APPAREILS[t]).map(m=>`<option>${m}</option>`).join("");majModeles()}
+function majPrestations(){const t=$("#f-type").value;const list=CATALOGUE.filter(s=>s.cats==="*"||s.cats.includes(t));
+ $("#svclegend").textContent=`Prestations compatibles — ${t}`;
+ $("#svclist").innerHTML=list.map(s=>`<div class="svcrow"><label style="flex:1"><input type="checkbox" class="f-svc" value="${s.id}" onchange="this.closest('.svcrow').querySelector('.f-prix').disabled=!this.checked">${s.label}</label><input type="number" class="f-prix" value="${s.prix}" min="0" step="1" disabled style="width:5.5em;border:1px solid var(--border);border-radius:6px;padding:.25rem .4rem;text-align:right;background:var(--panel)"><span class="price">€ HT${s.unit?" / "+s.unit:""} · modifiable</span></div>`).join("")}
+function majMarques(){const t=$("#f-type").value;$("#f-marque").innerHTML=Object.keys(APPAREILS[t]).map(m=>`<option>${m}</option>`).join("");majModeles();majPrestations()}
 function majModeles(){const t=$("#f-type").value,m=$("#f-marque").value;$("#f-mod").innerHTML=APPAREILS[t][m].map(x=>`<option>${x}</option>`).join("")}
 function initSig(){
   const c=$("#sig"),x=c.getContext("2d");let draw=false,px=0,py=0;
